@@ -119,7 +119,9 @@ Function Update-MonkeyRule{
                     }
                 }
                 #Create JSON rule
-                $InputObject = $_tmpRule | ConvertFrom-Json
+                $bytes = [System.Text.Encoding]::Default.GetBytes($_tmpRule)
+                $_utf8Rule = [System.Text.Encoding]::UTF8.GetString($bytes)
+                $InputObject = $_utf8Rule | ConvertFrom-Json
             }
             Catch{
                 $name = $InputObject | Select-Object -ExpandProperty displayName -ErrorAction Ignore

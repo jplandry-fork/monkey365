@@ -46,7 +46,7 @@ Function Resolve-Filter{
         [Object]$InputObject
     )
     Begin{
-        $option = $null
+        $option = $atLeast = $null
     }
     Process{
         If($null -ne $InputObject.PsObject.Properties.Item('conditions') -and $null -ne $InputObject.PsObject.Properties.Item('whereObject')){
@@ -70,6 +70,8 @@ Function Resolve-Filter{
         Else{
             Write-Warning $Script:messages.UnrecognizedFilter
         }
+        #Check if atLeast
+        $atLeast = $InputObject | Select-Object -ExpandProperty atLeast -ErrorAction Ignore
     }
     End{
         Switch($option){
@@ -98,7 +100,12 @@ Function Resolve-Filter{
                 if($condition){
                     $query = ConvertFrom-Condition @condition
                     if($null -ne $whereObject -and $null -ne $query){
-                        ('@($_.{0}).Where({{{1}}})' -f $whereObject,$query)
+                        If($null -ne $atLeast){
+                            ('@($_.{0}).Where({{{1}}}).Count -lt {2}' -f $whereObject,$query,$atLeast)
+                        }
+                        Else{
+                            ('@($_.{0}).Where({{{1}}})' -f $whereObject,$query)
+                        }
                     }
                 }
                 Else{

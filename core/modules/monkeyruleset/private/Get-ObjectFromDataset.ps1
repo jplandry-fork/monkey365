@@ -87,7 +87,17 @@ Function Get-ObjectFromDataset{
                                     $dataObjects = Get-ObjectPropertyByPath -InputObject $dataObjects -Property $subPath.Trim()
                                 }
                                 If($null -ne $selectCondition -and $selectCondition.PsObject.Properties.GetEnumerator().MoveNext()){
-                                    $queryTxt = convertFrom-Condition -Conditions $selectCondition -Operator "or"
+                                    #Set null
+                                    $queryTxt = $null;
+                                    #Check if conditions or filter
+                                    $_conditions = $selectCondition | Select-Object -ExpandProperty conditions -ErrorAction Ignore
+                                    $_filter = $selectCondition | Select-Object -ExpandProperty filter -ErrorAction Ignore
+                                    If($null -ne $_conditions){
+                                        $queryTxt = $selectCondition | Resolve-Filter
+                                    }
+                                    ElseIf($null -ne $_filter){
+                                        $queryTxt = $selectCondition | ConvertTo-Query
+                                    }
                                     If($null -ne $queryTxt){
                                         $query = $queryTxt | ConvertTo-SecureScriptBlock
                                         If($null -ne $query){

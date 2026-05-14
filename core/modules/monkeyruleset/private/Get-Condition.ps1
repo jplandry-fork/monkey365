@@ -48,7 +48,7 @@ function Get-Condition{
             #Get RightToleft
             $RightToLeft = $InputObject | Select-Object -ExpandProperty rightToLeft -ErrorAction Ignore
             $RightToLeft = Convert-Value -Value $RightToLeft
-            if($null -eq $RightToLeft -or $RightToLeft -isnot [bool]){
+            If($null -eq $RightToLeft -or $RightToLeft -isnot [bool]){
                 $RightToLeft = $false;
             }
             If($null -ne ($InputObject | Select-Object -ExpandProperty conditions -ErrorAction Ignore)){

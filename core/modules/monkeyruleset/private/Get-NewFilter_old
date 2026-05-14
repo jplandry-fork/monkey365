@@ -58,18 +58,6 @@ Function Get-NewFilter{
         If($LeftItem -eq '{$_}'){
             $pipeline = $True
         }
-        If($LeftItem -match '\{\$cutoffDateInDays\((\d+)\)\}'){
-            $days = $Matches[1]
-            If($null -ne $days){
-                $LeftItem = (Get-Date).AddDays(-$days)
-            }
-        }
-        If($RightItem -match '\{\$cutoffDateInDays\((\d+)\)\}'){
-            $days = $Matches[1]
-            If($null -ne $days){
-                $RightItem = (Get-Date).AddDays(-$days)
-            }
-        }
         $LeftCastValue = Convert-Value -Value $LeftItem;
         $RightCastValue = Convert-Value -Value $RightItem;
         If([string]::IsNullOrEmpty($Operator)){
@@ -117,7 +105,7 @@ Function Get-NewFilter{
                 $tmp_filter = ('$null -{0} $_.{1}' -f $Operator, $RightCastValue)
             }
             ElseIf($pipeline){
-                $tmp_filter = ('$_ -{0} "{1}"' -f $Operator, $RightCastValue)
+                $tmp_filter = ('$_ -{0} $_.{1}' -f $Operator, $RightCastValue)
             }
             ElseIf($LeftItem.Contains('@odata.type')){
                 #First remove odata.type

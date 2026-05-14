@@ -75,7 +75,7 @@ function ConvertFrom-Condition{
         }
         Foreach($condition in $Conditions.GetEnumerator()){
             If ($condition -is [System.Collections.IEnumerable] -and $condition -isnot [string]){
-                $newCondition = [System.Collections.Generic.List[System.String]]::new();
+                $newCondition = [System.Collections.Generic.List[System.Object]]::new();
                 ForEach($cond in $condition){
                     [void]$newCondition.Add($cond);
                 }

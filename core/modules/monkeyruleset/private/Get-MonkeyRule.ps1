@@ -53,7 +53,7 @@ Function Get-MonkeyRule{
         try{
             if($ValidRule){
                 foreach ($element in $Rule.Value){
-                    $raw_rule = (Get-Content $Rule.File.FullName -Raw)
+                    $raw_rule = (Get-Content $Rule.File.FullName -Raw -Encoding UTF8)
                     $found_args = $element | Select-Object -ExpandProperty args -ErrorAction Ignore
                     $level = $element | Select-Object -ExpandProperty level -ErrorAction Ignore
                     $is_rule_enabled = $element | Select-Object -ExpandProperty enabled -ErrorAction Ignore
@@ -72,7 +72,9 @@ Function Get-MonkeyRule{
                             }
                         }
                         #Create JSON rule
-                        $new_json_rule = $raw_rule | ConvertFrom-Json
+                        $bytes = [System.Text.Encoding]::Default.GetBytes($raw_rule)
+                        $_utf8Rule = [System.Text.Encoding]::UTF8.GetString($bytes)
+                        $new_json_rule = $_utf8Rule | ConvertFrom-Json
                         if($null -ne $level){
                             $new_json_rule | Add-Member -Type NoteProperty -name level -value $level -Force
                         }

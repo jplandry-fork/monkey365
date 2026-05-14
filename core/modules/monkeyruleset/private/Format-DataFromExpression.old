@@ -106,7 +106,7 @@ Function Format-DataFromExpression {
                 .NOTES
 	                Author		: Juan Garrido
                     Twitter		: @tr1ana
-                    File Name	: Get-PsExpression
+                    File Name	: Format-DataFromExpression
                     Version     : 1.0
 
                 .LINK
@@ -335,33 +335,7 @@ Function Format-DataFromExpression {
                                     #Set stringbuilder
                                     $property = [System.Text.StringBuilder]::new()
                                     If($element.Name.Trim().ToString().Contains('@')){
-                                        If($element.Name.Trim().ToString().Contains('@odata.type')){
-                                            #First remove odata.type
-                                            $_oldProperty = $element.Name.Trim().ToString() -replace '\.?["'']?@odata\.type["'']?',""
-                                            If($_oldProperty.Contains('.')){
-                                                $_parts = [System.Text.StringBuilder]::new()
-                                                ForEach($part in $_oldProperty.Split('.')){
-                                                    [void]$_parts.Append($part);
-                                                    [void]$_parts.Append('.')
-                                                }
-                                                $_newProperty = ('{0}"{1}"' -f $_parts.ToString(),'@odata.type')
-                                                #Add property
-                                                [void]$property.Append($_newProperty);
-                                            }
-                                            Else{
-                                                If($_oldProperty.Length -eq 0){
-                                                    $_newProperty = ('"{0}"' -f '@odata.type')
-                                                }
-                                                Else{
-                                                    $_newProperty = ('{0}."{1}"' -f $_oldProperty,'@odata.type')
-                                                }
-                                                #Add property
-                                                [void]$property.Append($_newProperty);
-                                            }
-                                        }
-                                        Else{
-                                            [void]$property.Append(('"{0}".' -f $element.Name.Trim().ToString()));
-                                        }
+                                        [void]$property.Append(('"{0}".' -f $element.Name.Trim().ToString()));
                                     }
                                     Else{
                                         ForEach($str in $element.Name.Split('.')){
@@ -374,19 +348,10 @@ Function Format-DataFromExpression {
                                         }
                                     }
                                     #Remove last character
-                                    If($property.ToString().EndsWith('.')){
-                                        $property.Length--;
-                                    }
-                                    If([System.String]::IsNullOrEmpty($element.value) -or [System.String]::IsNullOrWhiteSpace($element.Value)){
-                                        $element.Value = $property.ToString().Split('.')[-1].Replace(' ','').Replace('"',"")
-                                    }
-                                    <#
-                                    #Remove last character
                                     $property.Length--;
                                     If([System.String]::IsNullOrEmpty($element.value) -or [System.String]::IsNullOrWhiteSpace($element.Value)){
                                         $element.Value = $property.ToString().Split('.')[-1].Replace(' ','').Replace('"',"")
                                     }
-                                    #>
                                     #Set new expression
                                     Try{
                                         $newExpression = [ordered]@{

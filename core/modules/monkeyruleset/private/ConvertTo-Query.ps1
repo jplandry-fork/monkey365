@@ -1,4 +1,4 @@
-# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
+﻿# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,38 +47,61 @@ function ConvertTo-Query{
         $finalquery = [System.Text.StringBuilder]::new()
         Foreach($query in @($InputObject)){
             If($null -ne $query -and $null -ne $query.Psobject.Properties.Item('filter') -and $null -ne $query.filter){
-                #$filters = @()
                 $filters = [System.Collections.Generic.List`1[String]]::new()
+                #Get ConnectOperator
+                $connectOperator = $query | Select-Object -ExpandProperty connectOperator -ErrorAction Ignore
                 #Check if operator
                 $operator = $query | Select-Object -ExpandProperty operator -ErrorAction Ignore
-                #Check if connect operator
-                $connectOperator = $query | Select-Object -ExpandProperty connectOperator -ErrorAction Ignore
-                foreach($filter in $query.filter){
+                ForEach($filter in $query.filter){
                     $newFilter = $filter | Resolve-Filter
                     If($newFilter){
-                        #$filters+=$newFilter
-                        [void]$filters.Add($newFilter);
+                        #Check if connectOperator is present
+                        $connectOp = $filter | Select-Object -ExpandProperty connectOperator -ErrorAction Ignore
+                        If($null -ne $connectOp -and $null -ne (Get-LogicalOperator $connectOp)){
+                            $q = ("-{0} {1}" -f $connectOp,$newFilter);
+                            [void]$filters.Add($q);
+                        }
+                        ElseIf($filter.conditions.Count -gt 1){
+                            $q = ("({0})" -f $newFilter);
+                            [void]$filters.Add($q);
+                        }
+                        Else{
+                            [void]$filters.Add($newFilter);
+                        }
                     }
                 }
-                If(@($filters).Count -eq 1 -and $null -eq $operator){
+                If($filters.Count -eq 1){
                     $q = (@($filters) -join ' ')
                     If($null -ne $connectOperator -and $null -ne (Get-LogicalOperator $connectOperator)){
-                        $q = ("-{0} ({1})" -f $connectOperator,$q)
+                        $q = (" -{0} ({1})" -f $connectOperator,$q)
                     }
                     If($q.Length -gt 0){
-                        #$finalquery = ("{0} {1}" -f $finalquery,$q)
                         [void]$finalquery.Append($q);
                     }
                 }
-                Elseif($null -ne $operator -and $null -ne (Get-LogicalOperator $operator)){
-                    #$q = (@($filters).ForEach({"($_)"}) -join (' -{0} ' -f $operator))
-                    $q = $filters -join (' -{0} ' -f $operator)
-                    #Check if connect operator
-                    If($null -ne $connectOperator -and $null -ne (Get-LogicalOperator $connectOperator)){
-                        $q = ("-{0} ({1})" -f $connectOperator,$q)
+                ElseIf($filters.Count -gt 1){
+                    $q = [System.String]::Empty;
+                    If($null -ne $connectOperator -and $null -ne (Get-LogicalOperator $connectOperator) -and $null -ne $operator -and $null -ne (Get-LogicalOperator $operator)){
+                        $q = ("({0})" -f (@($filters -join (' -{0} ' -f $operator))))
+                        $q = (" -{0} {1}" -f $connectOperator, $q)
+                    }
+                    ElseIf($null -ne $operator -and $null -ne (Get-LogicalOperator $operator)){
+                        If(@($InputObject).Count -gt 1){
+                            $q = ("({0})" -f (@($filters -join (' -{0} ' -f $operator))))
+                        }
+                        Else{
+                            $q = ("{0}" -f (@($filters -join (' -{0} ' -f $operator))))
+                        }
+                    }
+                    Else{
+                        If($null -ne (Get-Variable -Name queryIsOpen -ErrorAction Ignore) -and $queryIsOpen){
+                            $q = ("{0}" -f (@($filters) -join ' '))
+                        }
+                        Else{
+                            $q = ("({0})" -f (@($filters) -join ' '))
+                        }
                     }
                     If($q.Length -gt 0){
-                        #$finalquery = ("{0} {1}" -f $finalquery,$q)
                         [void]$finalquery.Append($q);
                     }
                 }
@@ -94,6 +117,9 @@ function ConvertTo-Query{
         If($null -ne (Get-Variable -Name queryIsOpen -ErrorAction Ignore) -and $queryIsOpen){
             #$finalquery = ("{0}}})" -f $finalquery,$q)
             [void]$finalquery.Append('})');
+            If($atLeast){
+                [void]$finalquery.Append(('.Count -gt {0}' -f $atLeast));
+            }
             Remove-Variable -Name queryIsOpen -Scope Script -Force -ErrorAction Ignore
         }
         If($finalquery.Length -gt 0){
