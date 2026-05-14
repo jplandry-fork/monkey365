@@ -85,7 +85,11 @@ Function Export-MonkeyData{
                     $out = $null;
                     [void][bool]::TryParse($O365Object.internal_config.htmlSettings.htmlReportFromCDN, [ref]$out);
                     $htmlCDNReport = $out;
-                    $assetsRepository = $O365Object.internal_config.htmlSettings.assetsRepository;
+                    $assetsRepository = $O365Object.internal_config.htmlSettings.assets.repository;
+                    $branch = $O365Object.internal_config.htmlSettings.assets.branch;
+                    $out = $null;
+                    [void][bool]::TryParse($O365Object.internal_config.htmlSettings.assets.useLatestTag, [ref]$out);
+                    $useLatestTag = $out;
                     $localAssetsPath = $O365Object.internal_config.htmlSettings.localHtmlReport.assetsPath;
                     #Get all rules
                     $allRules = Get-Rule
@@ -169,18 +173,37 @@ Function Export-MonkeyData{
                         }
                     }
                     If($htmlCDNReport -and $assetsRepository){
-                        #Set params
-                        $p = @{
-                            Repository = $assetsRepository;
-                            Report = $matchedRules;
-                            ExecutionInfo = $O365Object.executionInfo;
-                            Instance = $O365Object.Instance;
-                            Rules = $allRules;
-                            RulesetInfo = $rulesetInfo;
-                            OutDir = $OutHtmlDir;
-                            Verbose = $O365Object.verbose;
-                            Debug = $O365Object.debug;
-                            InformationAction = $O365Object.InformationAction;
+                        If($useLatestTag){
+                            #Set params
+                            $p = @{
+                                Repository = $assetsRepository;
+                                LatestTag = $true;
+                                Report = $matchedRules;
+                                ExecutionInfo = $O365Object.executionInfo;
+                                Instance = $O365Object.Instance;
+                                Rules = $allRules;
+                                RulesetInfo = $rulesetInfo;
+                                OutDir = $OutHtmlDir;
+                                Verbose = $O365Object.verbose;
+                                Debug = $O365Object.debug;
+                                InformationAction = $O365Object.InformationAction;
+                            }
+                        }
+                        Else{
+                            #Set params
+                            $p = @{
+                                Repository = $assetsRepository;
+                                Branch = $branch;
+                                Report = $matchedRules;
+                                ExecutionInfo = $O365Object.executionInfo;
+                                Instance = $O365Object.Instance;
+                                Rules = $allRules;
+                                RulesetInfo = $rulesetInfo;
+                                OutDir = $OutHtmlDir;
+                                Verbose = $O365Object.verbose;
+                                Debug = $O365Object.debug;
+                                InformationAction = $O365Object.InformationAction;
+                            }
                         }
                         New-HtmlReport @p
                     }
