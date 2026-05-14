@@ -52,16 +52,10 @@
                         "conditions": [
                             [
                                 "properties.minimumTlsVersion",
-                                "ne",
-                                "TLS1_2"
-                            ],
-                            [
-                                "properties.minimumTlsVersion",
-                                "ne",
-                                "TLS1_3"
+                                "notin",
+                                ["TLS1_2","TLS1_3"]
                             ]
-                        ],
-                        "operator": "or"
+                        ]
                     }
                 ]
             }
