@@ -19,33 +19,37 @@
   <a href="https://www.powershellgallery.com/packages/monkey365"><img src="https://img.shields.io/powershellgallery/dt/monkey365.svg?style=flat&logo=powershell&label=PSGallery%20Download" alt="PowerShell Gallery Downloads"></a>
 </p>
 
-Monkey365 is an open-source security assessment tool for Microsoft 365, Azure, and Microsoft Entra ID. It helps administrators, consultants, and security professionals identify misconfigurations, review cloud security posture, and evaluate environments against industry security best practices and compliance standards.
+Monkey365 is an open-source security assessment framework for Microsoft 365, Azure, and Microsoft Entra ID. It helps security professionals, consultants, administrators, and incident responders identify misconfigurations, review cloud security posture, and evaluate environments against industry security best practices and compliance standards.
 
-Monkey365 is designed to simplify Microsoft cloud security assessments without requiring users to learn complex APIs or navigate multiple administration portals.
+Monkey365 is designed to simplify Microsoft cloud security assessments without requiring users to learn complex APIs, install multiple Microsoft modules, or navigate different administration portals.
 
 ---
 
 # Features
 
 - Self-contained PowerShell module with bundled dependencies
-- No external module installation required
-- No additional Microsoft PowerShell modules required
-- No dependency on common external modules such as:
-  - ExchangeOnlineManagement
-  - Az PowerShell / Azure CLI
-  - Microsoft Graph PowerShell SDK
-- Security posture assessment for Microsoft 365, Azure, and Microsoft Entra ID
+- No dependency on external Microsoft modules or tools, including ExchangeOnlineManagement, Az PowerShell / Azure CLI, or the Microsoft Graph PowerShell SDK
+- Security posture assessment for:
+  - Microsoft 365
+  - Azure
+  - Microsoft Entra ID
 - Coverage for major Microsoft 365 services including:
   - Exchange Online
   - SharePoint Online
   - Microsoft Teams
   - Microsoft Purview
   - Microsoft Fabric
+- Supports multiple authentication methods including:
+  - Interactive authentication
+  - MFA-enabled authentication
+  - Service principals
+  - Certificate-based authentication
+  - Direct access token authentication
 - CIS benchmark and compliance checks
-- HTML, JSON, and CSV reporting
+- Structured HTML, JSON, and CSV reporting suitable for automation and analysis workflows
 - Support for Azure Public, China, and Government cloud environments
 - Collector-based and extensible architecture
-- Easy deployment across workstations, jump boxes, and assessment environments
+- Easy deployment across workstations, jump boxes, automation pipelines, and assessment environments
 
 ---
 
@@ -157,6 +161,28 @@ Import-Module C:\temp\monkey365 -Force
 
 ---
 
+# Authentication
+
+Monkey365 supports multiple authentication methods for both interactive and automated assessments.
+
+Supported authentication workflows include:
+
+- Interactive authentication
+- MFA-enabled authentication
+- Service principals
+- Certificate-based authentication
+- Direct access token authentication
+
+Authentication documentation:
+
+- Authentication overview  
+  https://silverhack.github.io/monkey365/authentication/overview/
+
+- Access token authentication  
+  https://silverhack.github.io/monkey365/authentication/access_token/
+
+---
+
 # Basic Usage
 
 Display available command options:
@@ -224,11 +250,17 @@ Invoke-Monkey365 @options
 
 # Regulatory Compliance Checks
 
-Monkey365 helps streamline Microsoft 365, Azure, and Microsoft Entra ID security reviews through hundreds of built-in checks aligned with industry security best practices.
+Monkey365 includes hundreds of built-in checks aligned with industry security best practices and compliance frameworks for Microsoft cloud environments.
 
-The tool helps consultants, administrators, and security teams identify security gaps, validate tenant configurations, and assess risk exposure across cloud environments.
+The framework helps organizations:
 
-Assessment reports include structured and actionable data for rapid analysis and verification.
+- Identify security gaps
+- Review cloud configuration posture
+- Validate tenant hardening
+- Analyze identity and access controls
+- Assess compliance readiness
+
+Assessment reports include structured findings and remediation guidance for rapid analysis and verification.
 
 <p align="center">
   <img src="https://silverhack.github.io/monkey365/assets/images/htmlreport.png" />
