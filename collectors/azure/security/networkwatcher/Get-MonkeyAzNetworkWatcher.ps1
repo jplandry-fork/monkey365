@@ -63,8 +63,7 @@ function Get-MonkeyAZNetworkWatcher {
 				"https://silverhack.github.io/monkey365/"
 			);
 			ruleSuffixes = @(
-				"az_network_watcher";
-				"az_network_watcher_flow_logs"
+				"az_network_watcher"
 			);
 			dependsOn = @(
 
@@ -75,7 +74,7 @@ function Get-MonkeyAZNetworkWatcher {
         #Get config
         $config = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureNetworkWatcher" } | Select-Object -ExpandProperty resource
 		#Get Network Watcher
-		$networkWatchers = @($O365Object.all_resources).Where({ $_.type -like 'Microsoft.Network/networkWatchers' })
+		$networkWatchers = $O365Object.all_resources.Where({ $_.type -like 'Microsoft.Network/networkWatchers' })
 		#Set null
 		$allNetworkWatchers = $null
         if (-not $networkWatchers) { continue }

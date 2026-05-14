@@ -74,7 +74,7 @@ function Get-MonkeyAZCosmosDB {
 		#Get Config
         $config = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureDocumentDB" } | Select-Object -ExpandProperty resource
         #Get DocumentDB accounts
-        $accounts = @($O365Object.all_resources).Where({$_.type -like '*Microsoft.DocumentDb/databaseAccounts*'})
+        $accounts = $O365Object.all_resources.Where({$_.type -like '*Microsoft.DocumentDb/databaseAccounts*'})
 		#Create null
 		$cosmosDB = $null
 	}
