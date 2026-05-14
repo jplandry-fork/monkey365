@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/silverhack/monkey365/issues"><img alt="Issues" src="https://img.shields.io/github/issues/silverhack/monkey365"></a>
-<a href="https://github.com/silverhack/monkey365/blob/main/LICENSE"><img src="https://img.shields.io/github/license/silverhack/monkey365" alt="License"></a>
+  <a href="https://github.com/silverhack/monkey365/issues"><img alt="Issues" src="https://img.shields.io/github/issues/silverhack/monkey365"></a>
+  <a href="https://github.com/silverhack/monkey365/blob/main/LICENSE"><img src="https://img.shields.io/github/license/silverhack/monkey365" alt="License"></a>
 </p>
 
 <p align="center">
@@ -19,157 +19,254 @@
   <a href="https://www.powershellgallery.com/packages/monkey365"><img src="https://img.shields.io/powershellgallery/dt/monkey365.svg?style=flat&logo=powershell&label=PSGallery%20Download" alt="PowerShell Gallery Downloads"></a>
 </p>
 
-*Monkey365* is an Open Source security tool that can be used to easily conduct not only Microsoft 365, but also Azure subscriptions and Microsoft Entra ID security configuration reviews without the significant overhead of learning tool APIs or complex admin panels from the start. To help with this effort, Monkey365 also provides several ways to identify security gaps in the desired tenant setup and configuration. Monkey365 provides valuable recommendations on how to best configure those settings to get the most out of your Microsoft 365 tenant or Azure subscription.
+Monkey365 is an open-source security assessment tool for Microsoft 365, Azure, and Microsoft Entra ID. It helps administrators, consultants, and security professionals identify misconfigurations, review cloud security posture, and evaluate environments against industry security best practices and compliance standards.
 
-# Introduction
+Monkey365 is designed to simplify Microsoft cloud security assessments without requiring users to learn complex APIs or navigate multiple administration portals.
 
-Monkey365 is a collector-based PowerShell module that can be used to review the security posture of your cloud environment. With Monkey365 you can scan for potential misconfigurations and security issues in public cloud accounts according to security best practices and compliance standards, across Azure, Microsoft Entra ID, and Microsoft 365 core applications.
+---
 
-## Installation
+# Features
 
-### PowerShell Gallery
+- Self-contained PowerShell module with bundled dependencies
+- No external module installation required
+- No additional Microsoft PowerShell modules required
+- Security posture assessment for Microsoft 365, Azure, and Microsoft Entra ID
+- CIS benchmark and compliance checks
+- HTML, JSON, and CSV reporting
+- Support for Azure Public, China, and Government cloud environments
+- Collector-based and extensible architecture
+- Easy deployment across workstations, jump boxes, and assessment environments
 
-You can install Monkey365 using the built-in `Install-Module` command. The examples below will install Monkey365 in your  <a href="https://learn.microsoft.com/en-us/powershell/module/powershellget/install-module?view=powershellget-3.x#-scope" target="_blank">installation scope</a> depending on your PowerShell version. You can control this using the `-Scope <AllUsers/CurrentUser>` parameter.
+---
 
-``` powershell
+# Quick Start
+
+Install Monkey365 from the PowerShell Gallery:
+
+```powershell
 Install-Module -Name monkey365 -Scope CurrentUser
 ```
 
-To install a beta version, you can use the following command:
+Import the module:
 
-``` powershell
-Install-Module -Name monkey365 -Scope CurrentUser -AllowPrerelease
-```
-
-To update monkey365:
-
-``` powershell
-Update-Module -Name monkey365 -Scope CurrentUser
-```
-
-To force install monkey365:
-
-``` powershell
-Install-Module -Name monkey365 -Scope CurrentUser -Force
-```
-
-### GitHub
-
-You can download the latest release by clicking [here](https://github.com/silverhack/monkey365/releases). Once downloaded, you must extract the file and extract the files to a suitable directory.
-
-Once downloaded, you must extract the files to a suitable directory. Once you have unzipped the zip file, you can use the PowerShell V3 Unblock-File cmdlet to unblock files:
-
-``` powershell
-Get-ChildItem -Recurse c:\monkey365 | Unblock-File
-```
-
-Once you have installed the monkey365 module on your system, you will likely want to import the module with the Import-Module cmdlet. Assuming that Monkey365 is located in the ```PSModulePath```, PowerShell would load monkey365 into active memory:
-``` powershell
+```powershell
 Import-Module monkey365
 ```
-If Monkey365 is not located on a ```PSModulePath``` path, you can use an explicit path to import:
-``` powershell
-Import-Module C:\temp\monkey365
-```
-You can also use the ```Force``` parameter in case you want to reimport the Monkey365 module into the same session
-``` powershell
-Import-Module C:\temp\monkey365 -Force
-```
 
-## Basic Usage
-
-The following command will provide the list of available command line options:
-
-``` powershell
-Get-Help Invoke-Monkey365
-```
-
-To get a list of examples use:
-
-``` powershell
-Get-Help Invoke-Monkey365 -Examples
-```
-
-To get a list of all options and examples with detailed info use:
-
-
-``` powershell
-Get-Help Invoke-Monkey365 -Detailed
-```
-
-The following example will retrieve data and metadata from Azure AD and SharePoint Online and then print results. If credentials are not supplied, Monkey365 will prompt for credentials.
-
-
-``` powershell
-$options = @{
-    Instance = 'Microsoft365';
-    Collect = 'ExchangeOnline';
-    PromptBehavior = 'SelectAccount';
-    IncludeEntraID = $true;
-    ExportTo = 'CSV';
-}
-Invoke-Monkey365 @options
-```
-
-### Running Monkey365 in a National or Gov Cloud Environments
-
-The `-Environment` parameter can be used on `Invoke-Monkey365` to specify the name of the cloud environment to connect to. By default the global cloud (AzurePublic) is used.
-
-Allowed values include:
-
-- AzurePublic (default, if `Environment` parameter is not specified)
-- AzureChina
-- AzureUSGovernment
+Run a basic assessment:
 
 ```powershell
 $options = @{
-    Environment = "AzureUSGovernment";
     Instance = 'Microsoft365';
-    Collect = @('ExchangeOnline','SharePointOnline');
+    Collect = 'SharePointOnline';
     PromptBehavior = 'SelectAccount';
     IncludeEntraID = $true;
-    ExportTo = "JSON","HTML";
+    ExportTo = 'HTML';
 }
+$assets = Invoke-Monkey365 @options
+```
+
+Get available options and examples:
+
+```powershell
+Get-Help Invoke-Monkey365 -Detailed
+```
+
+---
+
+# Introduction
+
+Monkey365 is a collector-based PowerShell module used to review the security posture of cloud environments. It scans Microsoft 365, Azure, and Microsoft Entra ID for potential security issues, configuration weaknesses, and deviations from security best practices.
+
+The tool provides recommendations to help organizations strengthen their cloud security posture and improve compliance readiness.
+
+---
+
+# Installation
+
+## PowerShell Gallery
+
+Install the latest stable version:
+
+```powershell
+Install-Module -Name monkey365 -Scope CurrentUser
+```
+
+Install the latest prerelease version:
+
+```powershell
+Install-Module -Name monkey365 -Scope CurrentUser -AllowPrerelease
+```
+
+Update Monkey365:
+
+```powershell
+Update-Module -Name monkey365 -Scope CurrentUser
+```
+
+Force reinstall Monkey365:
+
+```powershell
+Install-Module -Name monkey365 -Scope CurrentUser -Force
+```
+
+> [!NOTE]
+> Monkey365 is distributed as a self-contained PowerShell module and includes all required dependencies. No additional Microsoft PowerShell modules are required.
+
+## GitHub Releases
+
+Download the latest release from the following page:
+
+https://github.com/silverhack/monkey365/releases
+
+After downloading the release package, extract the archive to a suitable directory.
+
+Use the PowerShell `Unblock-File` cmdlet to unblock extracted files if required:
+
+```powershell
+Get-ChildItem -Recurse C:\monkey365 | Unblock-File
+```
+
+Import the module:
+
+```powershell
+Import-Module monkey365
+```
+
+If Monkey365 is not located in a `PSModulePath` directory, import it using an explicit path:
+
+```powershell
+Import-Module C:\temp\monkey365
+```
+
+Reimport the module into the current PowerShell session:
+
+```powershell
+Import-Module C:\temp\monkey365 -Force
+```
+
+---
+
+# Basic Usage
+
+Display available command options:
+
+```powershell
+Get-Help Invoke-Monkey365
+```
+
+Display usage examples:
+
+```powershell
+Get-Help Invoke-Monkey365 -Examples
+```
+
+Display detailed help information:
+
+```powershell
+Get-Help Invoke-Monkey365 -Detailed
+```
+
+Example assessment:
+
+```powershell
+$options = @{
+    Instance        = 'Microsoft365'
+    Collect         = 'ExchangeOnline'
+    PromptBehavior  = 'SelectAccount'
+    IncludeEntraID  = $true
+    ExportTo        = 'HTML'
+}
+
 Invoke-Monkey365 @options
 ```
 
-## Regulatory compliance checks
+If credentials are not supplied, Monkey365 prompts for authentication.
 
-Monkey365 helps streamline the process of performing not only Microsoft 365, but also Azure subscriptions and Microsoft Entra ID Security Reviews.
+---
 
-160+ checks covering industry defined security best practices for Microsoft 365, Azure and Entra ID. 
+# Running Monkey365 in National or Government Cloud Environments
 
-Monkey365 will help consultants to assess cloud environment and to analyze the risk factors according to controls and best practices. The report will contain structured data for quick checking and verification of the results.
+Use the `-Environment` parameter with `Invoke-Monkey365` to specify the target cloud environment.
+
+Supported environments:
+
+- `AzurePublic` (default)
+- `AzureChina`
+- `AzureUSGovernment`
+
+Example:
+
+```powershell
+$options = @{
+    Environment     = 'AzureUSGovernment'
+    Instance        = 'Microsoft365'
+    Collect         = @('ExchangeOnline', 'SharePointOnline')
+    PromptBehavior  = 'SelectAccount'
+    IncludeEntraID  = $true
+    ExportTo        = @('JSON', 'HTML')
+}
+
+Invoke-Monkey365 @options
+```
+
+---
+
+# Regulatory Compliance Checks
+
+Monkey365 helps streamline Microsoft 365, Azure, and Microsoft Entra ID security reviews through hundreds of built-in checks aligned with industry security best practices.
+
+The tool helps consultants, administrators, and security teams identify security gaps, validate tenant configurations, and assess risk exposure across cloud environments.
+
+Assessment reports include structured and actionable data for rapid analysis and verification.
 
 <p align="center">
   <img src="https://silverhack.github.io/monkey365/assets/images/htmlreport.png" />
 </p>
 
-## Supported standards
+---
 
-By default, the HTML report shows you the CIS (Center for Internet Security) Benchmark. The CIS Benchmarks for Azure and Microsoft 365 are guidelines for security and compliance best practices.
+# Supported Standards
 
-The following standards are supported by Monkey365:
+By default, the HTML report displays CIS (Center for Internet Security) benchmark mappings for Microsoft Azure and Microsoft 365 environments.
 
-* CIS Microsoft Azure Foundations Benchmark v3.0.0
-* CIS Microsoft Azure Database Services Benchmark v2.0.0
-* CIS Microsoft 365 Foundations Benchmark v3.0.0, v4.0.0 and V5.0.0
+Currently supported standards include:
 
-More standards will be added in next releases (NIST, HIPAA, GDPR, PCI-DSS, etc..) as they are available.
+- CIS Microsoft Azure Foundations Benchmark v3.0.0
+- CIS Microsoft Azure Database Services Benchmark v2.0.0
+- CIS Microsoft Azure Compute Services Benchmark v2.0.0
+- CIS Microsoft 365 Foundations Benchmark v3.0.0
+- CIS Microsoft 365 Foundations Benchmark v4.0.0
+- CIS Microsoft 365 Foundations Benchmark v5.0.0
 
-Additional information such as Installation or advanced usage can be found in the following [link](https://silverhack.github.io/monkey365/)
+Additional standards and frameworks may be added in future releases, including:
 
+- NIST
+- HIPAA
+- GDPR
+- PCI-DSS
+
+---
+
+# Documentation
+
+Detailed installation guides, advanced usage examples, configuration references, and additional documentation are available at:
+
+https://silverhack.github.io/monkey365/
+
+---
 
 > [!TIP]
-> **Give us a Star!** If you find this tool useful, please consider giving it a [star ⭐ on GitHub](https://github.com/silverhack/monkey365)! It helps more people discover the project and keeps it evolving.
+> **Give us a Star!** If you find Monkey365 useful, please consider starring the repository on GitHub. It helps improve visibility and supports ongoing development.
 
+---
 
-## Star History
+# Star History
 
 <a href="https://www.star-history.com/#silverhack/monkey365&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
- </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
+  </picture>
 </a>
