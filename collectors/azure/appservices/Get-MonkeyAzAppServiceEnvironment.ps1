@@ -1,4 +1,4 @@
-# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
+﻿# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,13 +13,13 @@
 # limitations under the License.
 
 
-function Get-MonkeyAzAppServiceInfo {
+function Get-MonkeyAzAppServiceEnvironment {
 <#
         .SYNOPSIS
-		Collector to get information from Azure App Services
+		Collector to get information from Azure App Service Environment
 
         .DESCRIPTION
-		Collector to get information from Azure App Services
+		Collector to get information from Azure App Service Environment
 
         .INPUTS
 
@@ -30,7 +30,7 @@ function Get-MonkeyAzAppServiceInfo {
         .NOTES
 	        Author		: Juan Garrido
             Twitter		: @tr1ana
-            File Name	: Get-MonkeyAzAppServiceInfo
+            File Name	: Get-MonkeyAzAppServiceEnvironment
             Version     : 1.0
 
         .LINK
@@ -45,14 +45,14 @@ function Get-MonkeyAzAppServiceInfo {
 	begin {
 		#Collector metadata
 		$monkey_metadata = @{
-			Id = "az00002";
+			Id = "az00163";
 			Provider = "Azure";
-			Resource = "AppServices";
+			Resource = "App Service Environment";
 			ResourceType = $null;
 			resourceName = $null;
-			collectorName = "Get-MonkeyAzAppServiceInfo";
+			collectorName = "Get-MonkeyAzAppServiceEnvironment";
 			ApiType = "resourceManagement";
-			description = "Collector to get information from Azure App Services";
+			description = "Collector to get information from Azure App Service Environment";
 			Group = @(
 				"AppServices"
 			);
@@ -63,7 +63,7 @@ function Get-MonkeyAzAppServiceInfo {
 				"https://silverhack.github.io/monkey365/"
 			);
 			ruleSuffixes = @(
-				"az_app_services"
+				"az_app_service_environment"
 			);
 			dependsOn = @(
 
@@ -72,28 +72,28 @@ function Get-MonkeyAzAppServiceInfo {
 			supportClientCredential = $true
 		}
 		#config
-		$config = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureWebApps" } | Select-Object -ExpandProperty resource
-		#Get all sites
-		$app_services = $O365Object.all_resources.Where({$_.type -eq 'Microsoft.Web/sites' -or $_.type -eq 'Microsoft.Web/sites/slots' })
-		if (-not $app_services) { continue }
+        $config = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureAppServiceEnvironment" } | Select-Object -ExpandProperty resource
+        #Get all app service hosting environments
+        $hostingEnvironments = $O365Object.all_resources.Where({ $_.type -eq 'Microsoft.Web/hostingEnvironments' })
+		if (-not $hostingEnvironments) { continue }
 		#Set array
-		$all_apps = New-Object System.Collections.Generic.List[System.Object]
+		$all_environments = [System.Collections.Generic.List[System.Object]]::new()
 	}
 	process {
 		$msg = @{
-			MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure app services",$O365Object.current_subscription.displayName);
+			MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure app service environment",$O365Object.current_subscription.displayName);
 			callStack = (Get-PSCallStack | Select-Object -First 1);
 			logLevel = 'info';
 			InformationAction = $O365Object.InformationAction;
 			Tags = @('AzureAPPServices');
 		}
 		Write-Information @msg
-		if ($app_services.Count -gt 0) {
+		if ($hostingEnvironments.Count -gt 0) {
 			$new_arg = @{
 				APIVersion = $config.api_version;
 			}
 			$p = @{
-				ScriptBlock = { Get-MonkeyAzAppService -InputObject $_ };
+				ScriptBlock = { Get-MonkeyAzAppServiceEnvironmentInfo -InputObject $_ };
 				Arguments = $new_arg;
 				Runspacepool = $O365Object.monkey_runspacePool;
 				ReuseRunspacePool = $true;
@@ -103,21 +103,21 @@ function Get-MonkeyAzAppServiceInfo {
 				BatchSleep = $O365Object.nestedRunspaces.BatchSleep * 2;
 				BatchSize = [int][Math]::Truncate($O365Object.nestedRunspaces.BatchSize / 3);
 			}
-			$all_apps = $app_services | Invoke-MonkeyJob @p
+			$all_environments = $hostingEnvironments | Invoke-MonkeyJob @p
 		}
 	}
 	end {
-		if ($all_apps) {
-			$all_apps.PSObject.TypeNames.Insert(0,'Monkey365.Azure.WebApps')
+		if ($all_environments) {
+			$all_environments.PSObject.TypeNames.Insert(0,'Monkey365.Azure.AppService.Environment')
 			[pscustomobject]$obj = @{
-				Data = $all_apps;
+				Data = $all_environments;
 				Metadata = $monkey_metadata;
 			}
-			$returnData.az_app_services = $obj
+			$returnData.az_app_service_environment = $obj
 		}
 		else {
 			$msg = @{
-				MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure app services",$O365Object.TenantID);
+				MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure app service Environment",$O365Object.TenantID);
 				callStack = (Get-PSCallStack | Select-Object -First 1);
 				logLevel = "verbose";
 				InformationAction = $O365Object.InformationAction;
@@ -128,3 +128,12 @@ function Get-MonkeyAzAppServiceInfo {
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
