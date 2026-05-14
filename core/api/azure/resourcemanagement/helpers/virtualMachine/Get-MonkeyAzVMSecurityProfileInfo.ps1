@@ -47,10 +47,17 @@ Function Get-MonkeyAzVMSecurityProfileInfo {
             $securityProfile = $InputObject.properties | Select-Object -ExpandProperty securityProfile -ErrorAction Ignore
             If($null -ne $securityProfile){
                 $InputObject.securityProfile.encryptionAtHost = $securityProfile.encryptionAtHost;
-                $InputObject.securityProfile.securityType.ConfidentialVM = $securityProfile.securityType.ConfidentialVM;
-                $InputObject.securityProfile.securityType.TrustedLaunch = $securityProfile.securityType.TrustedLaunch;
-                $InputObject.securityProfile.uefiSettings.secureBootEnabled = $securityProfile.uefiSettings.secureBootEnabled;
-                $InputObject.securityProfile.uefiSettings.vTpmEnabled = $securityProfile.uefiSettings.vTpmEnabled;
+                #Get securityType and uefiSettings
+                $securityType = $securityProfile | Select-Object -ExpandProperty securityType -ErrorAction Ignore
+                $uefiSettings = $securityProfile | Select-Object -ExpandProperty uefiSettings -ErrorAction Ignore
+                If($null -ne $securityType){
+                    $InputObject.securityProfile.securityType.ConfidentialVM = $securityType | Select-Object -ExpandProperty ConfidentialVM -ErrorAction Ignore
+                    $InputObject.securityProfile.securityType.TrustedLaunch = $securityType | Select-Object -ExpandProperty TrustedLaunch -ErrorAction Ignore
+                }
+                If($null -ne $uefiSettings){
+                    $InputObject.securityProfile.uefiSettings.secureBootEnabled = $uefiSettings | Select-Object -ExpandProperty secureBootEnabled -ErrorAction Ignore
+                    $InputObject.securityProfile.uefiSettings.vTpmEnabled = $uefiSettings | Select-Object -ExpandProperty vTpmEnabled -ErrorAction Ignore
+                }
                 $InputObject.securityProfile.rawObject = $securityProfile
             }
         }

@@ -37,19 +37,34 @@ Function Get-MonkeyAzVMOMSInfo {
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function")]
 	[CmdletBinding()]
+    [OutputType([System.Boolean])]
 	Param (
         [Parameter(Mandatory=$True, ValueFromPipeline = $True, HelpMessage="VM object")]
-        [Object]$InputObject
+        [Object]$InputObject,
+
+        [Parameter(Mandatory=$false, HelpMessage="Check for legacy OMS")]
+        [Switch]$Legacy
     )
     Process{
         try{
             If($null -ne $InputObject.PsObject.Properties.Item('resources') -and $null -ne $InputObject.resources){
-                $agent = @($vmObject.resources).Where({$_.Id -match "MicrosoftMonitoringAgent" -or $_.Id -match "OmsAgentForLinux"})
-                if($agent.Count -gt 0){
-                    $InputObject.isVMAgentInstalled = $True
+                If($PSBoundParameters.ContainsKey('Legacy') -and $PSBoundParameters['Legacy'].IsPresent){
+                    $agent = @($InputObject.resources).Where({$_.name -match "MicrosoftMonitoringAgent" -or $_.name -match "OmsAgentForLinux"})
+                    If($agent.Count -gt 0){
+                        return $True
+                    }
+                    Else{
+                        return $false
+                    }
                 }
-                else{
-                    $InputObject.isVMAgentInstalled = $false
+                Else{
+                    $agent = @($InputObject.resources).Where({$_.name -match "AzureMonitorAgent"})
+                    If($agent.Count -gt 0){
+                        return $True
+                    }
+                    Else{
+                        return $false
+                    }
                 }
             }
         }

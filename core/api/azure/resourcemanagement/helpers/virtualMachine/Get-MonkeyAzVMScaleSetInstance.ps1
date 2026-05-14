@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Function Get-MonkeyVMScaleSetVM {
+Function Get-MonkeyAzVMScaleSetInstance {
     <#
         .SYNOPSIS
 		Get Azure Virtual machine scale set virtual machine
@@ -29,7 +29,7 @@ Function Get-MonkeyVMScaleSetVM {
         .NOTES
 	        Author		: Juan Garrido
             Twitter		: @tr1ana
-            File Name	: Get-MonkeyVMScaleSetVM
+            File Name	: Get-MonkeyAzVMScaleSetInstance
             Version     : 1.0
 
         .LINK
@@ -38,25 +38,26 @@ Function Get-MonkeyVMScaleSetVM {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function")]
 	[CmdletBinding()]
 	Param (
-        [Parameter(Mandatory=$True, HelpMessage="VM object")]
-        [Object]$VmObject,
+        [Parameter(Mandatory=$True, ValueFromPipeline = $True, HelpMessage="VM object")]
+        [Object]$InputObject,
 
         [parameter(Mandatory=$false, HelpMessage="API version")]
-        [String]$APIVersion = "2023-07-01"
+        [String]$APIVersion = "2024-07-01"
     )
-    try{
-        $p = @{
-			Id = $VmObject.Id;
-            Resource = '/virtualMachines';
-            Expand = 'instanceView';
-            ApiVersion = $APIVersion;
-            Verbose = $O365Object.verbose;
-            Debug = $O365Object.debug;
-            InformationAction = $O365Object.InformationAction;
-		}
-		Get-MonkeyAzObjectById @p
-    }
-    catch{
-        Write-Verbose $_
+    Process{
+        try{
+            $p = @{
+			    Id = $InputObject.Id;
+                Resource = '/virtualMachines';
+                ApiVersion = $APIVersion;
+                Verbose = $O365Object.verbose;
+                Debug = $O365Object.debug;
+                InformationAction = $O365Object.InformationAction;
+		    }
+		    Get-MonkeyAzObjectById @p
+        }
+        catch{
+            Write-Verbose $_
+        }
     }
 }

@@ -39,24 +39,32 @@ Function New-MonkeyVmScaleSetObject {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope="Function")]
 	[CmdletBinding()]
 	Param (
-        [parameter(Mandatory= $True, ValueFromPipeline = $True, HelpMessage="VM object")]
+        [parameter(Mandatory= $True, ValueFromPipeline = $True, HelpMessage="VM ScaleSet object")]
         [Object]$InputObject
     )
     Process{
         try{
             #Create ordered dictionary
             $VMObject = [ordered]@{
-                id = $InputObject.Id;
-		        name = $InputObject.Name;
-                type = $InputObject.type;
-                location = $InputObject.location;
-		        tags = $InputObject.tags;
-                sku = $InputObject.sku;
-                properties = $InputObject.properties;
+                id = $InputObject | Select-Object -ExpandProperty Id -ErrorAction Ignore;
+		        name = $InputObject | Select-Object -ExpandProperty name -ErrorAction Ignore;
+                type = $InputObject | Select-Object -ExpandProperty type -ErrorAction Ignore;
+                location = $InputObject | Select-Object -ExpandProperty location -ErrorAction Ignore;
+		        tags = $InputObject | Select-Object -ExpandProperty tags -ErrorAction Ignore;
+                sku = $InputObject | Select-Object -ExpandProperty sku -ErrorAction Ignore;
+                properties = $InputObject | Select-Object -ExpandProperty properties -ErrorAction Ignore;
                 resourceGroupName = $InputObject.Id.Split("/")[4];
-                networking = $null;
+                virtualMachineProfile = $InputObject.properties | Select-Object -ExpandProperty virtualMachineProfile -ErrorAction Ignore
+                networking = [PSCustomObject]@{
+                    virtualNetworks = $null;
+                    subnets = $null;
+                    networkSecurityGroups = $null;
+                    adminSecurityRules = $null;
+                    loadBalancers = $null;
+                    applicationSecurityGroups = $null;
+                    acceleratedNetworking = $null;
+                };
                 instances = $null;
-                instanceView = $null;
                 locks = $null;
                 automaticUpdates = [PSCustomObject]@{
                     enabled = $null;
@@ -78,16 +86,16 @@ Function New-MonkeyVmScaleSetObject {
         }
         catch{
             $msg = @{
-			    MessageData = ($message.MonkeyObjectCreationFailed -f "VM");
+			    MessageData = ($message.MonkeyObjectCreationFailed -f "Virtual Machine ScaleSet object");
 			    callStack = (Get-PSCallStack | Select-Object -First 1);
 			    logLevel = 'error';
 			    InformationAction = $O365Object.InformationAction;
-			    Tags = @('VMObjectError');
+			    Tags = @('VMScaleSetObjectError');
 		    }
 		    Write-Error @msg
             $msg.MessageData = $_
             $msg.LogLevel = "Verbose"
-            $msg.Tags+= "VMObjectError"
+            $msg.Tags+= "VMScaleSetObjectError"
             [void]$msg.Add('verbose',$O365Object.verbose)
 		    Write-Verbose @msg
         }

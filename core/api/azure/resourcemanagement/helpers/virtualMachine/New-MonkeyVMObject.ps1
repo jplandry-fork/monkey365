@@ -48,6 +48,7 @@ Function New-MonkeyVMObject {
             $VMObject = [ordered]@{
                 id = $InputObject.Id;
 		        name = $InputObject.Name;
+                identity = $InputObject | Select-Object -ExpandProperty identity -ErrorAction Ignore
                 type = $InputObject.type;
                 location = $InputObject.location;
 		        tags = if($null -ne $InputObject.Psobject.Properties.Item('tags')){$InputObject.tags}else{$null};
@@ -55,9 +56,15 @@ Function New-MonkeyVMObject {
                 properties = $InputObject.properties;
                 resourceGroupName = $InputObject.Id.Split("/")[4];
                 resources = if($null -ne $InputObject.Psobject.Properties.Item('resources')){$InputObject.resources}else{$null};
-                isAVAgentInstalled = $null;
-                isVMAgentInstalled = $null;
                 instanceView = $InputObject.properties.instanceView;
+                backup = [PSCustomObject]@{
+                    restorePoint = $false;
+                };
+                defaultExtensions = [PSCustomObject]@{
+                    isAVAgentInstalled = $null;
+                    isVMMonitorAgentInstalled = $null;
+                    isVMLegacyMonitorAgentInstalled = $null;
+                };
                 securityProfile = [PSCustomObject]@{
                     encryptionAtHost = $null;
                     encryptionIdentity = [PSCustomObject]@{
@@ -95,10 +102,15 @@ Function New-MonkeyVMObject {
                 dataDisks = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
                 automaticUpdates = [PSCustomObject]@{
                     enabled = $null;
+                    patchMode = $null;
+                    automaticByPlatformSettings = $null;
+                    assessmentMode = $null;
+                    enableHotpatching = $null;
                     rawObject = $null;
                 };
                 localNic = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
                 publicNic = [System.Collections.Generic.List[System.Management.Automation.PSObject]]::new()
+                configurationManagement = $null;
                 diagnosticSettings = [PSCustomObject]@{
                     enabled = $false;
                     name = $null;

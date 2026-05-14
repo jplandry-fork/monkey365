@@ -37,6 +37,7 @@ Function Get-MonkeyAzVMAVInfo {
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseSingularNouns", "", Scope="Function")]
 	[CmdletBinding()]
+    [OutputType([System.Boolean])]
 	Param (
         [Parameter(Mandatory=$True, ValueFromPipeline = $True, HelpMessage="VM object")]
         [Object]$InputObject
@@ -45,11 +46,11 @@ Function Get-MonkeyAzVMAVInfo {
         try{
             If($null -ne $InputObject.PsObject.Properties.Item('resources') -and $null -ne $InputObject.resources){
                 $av = @($InputObject.resources).Where({($_.Id -match "IaaSAntimalware" -or $_.Id -match "MDE.Windows" -or $_.Id -match "MDE.Linux") -and ($_.properties.provisioningState -ne 'Failed')})
-                if($av.Count -gt 0){
-                    $InputObject.isAVAgentInstalled = $True
+                If($av.Count -gt 0){
+                    return $True
                 }
-                else{
-                    $InputObject.isAVAgentInstalled = $false
+                Else{
+                    return $false
                 }
             }
         }

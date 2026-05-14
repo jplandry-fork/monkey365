@@ -45,6 +45,16 @@ Function Get-MonkeyAzVirtualMachineInfo {
         [parameter(Mandatory=$false, HelpMessage="API version")]
         [String]$APIVersion = "2024-07-01"
     )
+    Begin{
+        $config = @($O365Object.internal_config.resourceManager).Where({$_.Name -eq "DiagnosticSettings"}) | Select-Object -ExpandProperty resource -ErrorAction Ignore
+        If($config){
+            $diag_settings_api_Version = $config.api_version;
+        }
+        Else{
+            #Fallback
+            $diag_settings_api_Version = "2021-05-01-preview"
+        }
+    }
     Process{
         try{
             $msg = @{
@@ -67,9 +77,13 @@ Function Get-MonkeyAzVirtualMachineInfo {
             if($null -ne $vm){
                 $vmObject = $vm | New-MonkeyVMObject
                 #Check for antimalware
-                $vmObject | Get-MonkeyAzVMAVInfo
-                #Check for installed agent
-                $vmObject | Get-MonkeyAzVMOMSInfo
+                $vmObject.defaultExtensions.isAVAgentInstalled = $vmObject | Get-MonkeyAzVMAVInfo
+                #Check for legacy monitoring agent
+                $vmObject.defaultExtensions.isVMLegacyMonitorAgentInstalled = $vmObject | Get-MonkeyAzVMOMSInfo -Legacy
+                #Check for monitoring agent
+                $vmObject.defaultExtensions.isVMMonitorAgentInstalled = $vmObject | Get-MonkeyAzVMOMSInfo
+                #Check for restore points
+                $vmObject.backup.restorePoint = $vmObject | Get-MonkeyAzVMRestorePoint
                 #Check OS Disk
                 $vmObject | Get-MonkeyAzVMOSDiskInfo
                 #Get Data disks
@@ -84,6 +98,7 @@ Function Get-MonkeyAzVirtualMachineInfo {
                 If($InputObject.supportsDiagnosticSettings -eq $True){
                     $p = @{
 		                Id = $vmObject.Id;
+                        ApiVersion = $diag_settings_api_Version;
                         Verbose = $O365Object.verbose;
                         Debug = $O365Object.debug;
                         InformationAction = $O365Object.InformationAction;
@@ -105,10 +120,7 @@ Function Get-MonkeyAzVirtualMachineInfo {
                     Debug = $O365Object.debug;
                     InformationAction = $O365Object.InformationAction;
 	            }
-	            $updates = Get-MonkeyVMMissingKb @p
-                if($updates){
-                    $vmObject.updates = $updates;
-                }
+	            $vmObject.updates = Get-MonkeyVMMissingKb @p
                 #Get latest assessment result
                 $p = @{
 		            InputObject = $vmObject;
@@ -116,10 +128,35 @@ Function Get-MonkeyAzVirtualMachineInfo {
                     Debug = $O365Object.debug;
                     InformationAction = $O365Object.InformationAction;
 	            }
-	            $latestAssessment = Get-MonkeyVMPatchAssessmentResult @p
-                if($latestAssessment){
-                    $vmObject.latestPatchResults = $latestAssessment;
+	            $vmObject.latestPatchResults = Get-MonkeyVMPatchAssessmentResult @p
+                #Check for updates configuration
+                If($vmObject.properties.storageProfile.osDisk.osType.ToLower() -eq 'windows'){
+                    $vmObject.automaticUpdates.enabled = $vmObject.properties.osProfile.windowsConfiguration | Select-Object -ExpandProperty enableAutomaticUpdates -ErrorAction Ignore
+                    $vmObject.automaticUpdates.patchMode = $vmObject.properties.osProfile.windowsConfiguration.patchSettings.patchMode;
+                    $vmObject.automaticUpdates.automaticByPlatformSettings = $vmObject.properties.osProfile.windowsConfiguration.patchSettings.automaticByPlatformSettings;
+                    $vmObject.automaticUpdates.assessmentMode = $vmObject.properties.osProfile.windowsConfiguration.patchSettings.assessmentMode;
+                    $vmObject.automaticUpdates.enableHotpatching = $vmObject.properties.osProfile.windowsConfiguration.patchSettings.enableHotpatching;
+                    $vmObject.automaticUpdates.rawObject = $vmObject.properties.osProfile;
                 }
+                If($vmObject.properties.storageProfile.osDisk.osType.ToLower() -eq 'linux'){
+                    $vmObject.automaticUpdates.patchMode = $vmObject.properties.osProfile.linuxConfiguration.patchSettings.patchMode;
+                    $vmObject.automaticUpdates.automaticByPlatformSettings = $vmObject.properties.osProfile.linuxConfiguration.patchSettings.automaticByPlatformSettings;
+                    $vmObject.automaticUpdates.assessmentMode = $vmObject.properties.osProfile.linuxConfiguration.patchSettings.assessmentMode;
+                    $vmObject.automaticUpdates.rawObject = $vmObject.properties.osProfile;
+                }
+                #Get configuration management
+                $p = @{
+		            InputObject = $vmObject;
+                    Verbose = $O365Object.verbose;
+                    Debug = $O365Object.debug;
+                    InformationAction = $O365Object.InformationAction;
+	            }
+	            $_confManagement = Get-MonkeyVMConfigurationManagement @p
+                $configurationManagement = [System.Collections.Generic.List[System.Object]]::new()
+                ForEach($cnf in $_confManagement){
+                    [void]$configurationManagement.Add($cnf);
+                }
+                $vmObject.configurationManagement = $configurationManagement;
                 #Return object
                 return $vmObject
             }

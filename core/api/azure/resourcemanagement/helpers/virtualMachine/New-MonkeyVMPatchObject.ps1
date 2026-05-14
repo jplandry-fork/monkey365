@@ -57,13 +57,14 @@ Function New-MonkeyVMPatchObject {
                 tags = $InputObject.tags;
                 identity = $InputObject.identity;
                 extendedLocation = $InputObject.extendedLocation;
-                lastModifiedDateTime = $InputObject.properties.lastModifiedDateTime;
-                classifications = $InputObject.properties.classifications;
-                patchName = $InputObject.properties.patchName;
-                patchId = $InputObject.properties.patchId;
-                publishedDateTime = $InputObject.properties.publishedDateTime;
-                rebootBehavior = $InputObject.properties.rebootBehavior;
-                kbId = $InputObject.properties.kbId;
+                lastModifiedDateTime = $InputObject.properties | Select-Object -ExpandProperty lastModifiedDateTime -ErrorAction Ignore
+                classifications = $InputObject.properties | Select-Object -ExpandProperty classifications -ErrorAction Ignore
+                patchName = $InputObject.properties | Select-Object -ExpandProperty patchName -ErrorAction Ignore
+                patchId = $InputObject.properties | Select-Object -ExpandProperty patchId -ErrorAction Ignore
+                publishedDateTime = $InputObject.properties | Select-Object -ExpandProperty publishedDateTime -ErrorAction Ignore
+                rebootBehavior = $InputObject.properties | Select-Object -ExpandProperty rebootBehavior -ErrorAction Ignore
+                version = $InputObject.properties | Select-Object -ExpandProperty version -ErrorAction Ignore
+                kbId = $InputObject.properties | Select-Object -ExpandProperty kbId -ErrorAction Ignore
                 rawObject = $InputObject;
             }
             #Create PsObject
