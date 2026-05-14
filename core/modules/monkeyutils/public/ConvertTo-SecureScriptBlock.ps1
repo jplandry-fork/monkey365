@@ -55,8 +55,9 @@ Function ConvertTo-SecureScriptBlock{
             $allowEnvVars= $false
             # Any variable will be allowed
             $allowedVariables = [string[]] @('*')
-            #Remove Property references
-            $sbTest = $InputObject.Replace('.','')
+            #Remove Property references inside parentheses
+            #$sbTest = $InputObject.Replace('.','')
+            $sbTest = $InputObject -replace '(?<=\([^()]*)\.(?=[^()]*\))', ''
             ForEach($allow in $allowed){
                 If([regex]::isMatch($sbTest.ToLower(),("-{0}" -f $allow.ToLower()))){
                     $sbTest = $sbTest -ireplace [regex]::Escape(("-{0}" -f $allow.ToLower())), "-eq"
@@ -65,7 +66,9 @@ Function ConvertTo-SecureScriptBlock{
             $double_quotes ='".*?"'
             $single_quotes ='''.*?'''
             #Replace Where if any
-            $sbTest = $sbTest.Replace('Where', ' -and ').Replace('{','').Replace('}','')
+            $sbTest = $sbTest -replace '(?i)\.?Where', " -and "
+            #Replace bracket
+            $sbTest = $sbTest.Replace('{','').Replace('}','')
             #Replace @ and |
             $sbTest = $sbTest.Replace('@', '').Replace('|','')
             #Remove string with double quotes
@@ -82,6 +85,10 @@ Function ConvertTo-SecureScriptBlock{
                     $sbTest = $sbTest -replace [regex]::Escape($match.Value), 0
                 }
             }
+            #Replace Count
+            $sbTest = $sbTest -replace '(?i)\.?Count', ''
+            #Replace final dots
+            $sbTest = $sbTest -replace '\.', ''
             #Create an scriptblock that will not be executed
             $ScriptBlock = [scriptblock]::Create($sbTest)
             try{

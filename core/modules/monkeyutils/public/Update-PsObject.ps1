@@ -93,12 +93,13 @@ Function Update-PsObject{
                     }
                   }
                   # Output: If the value is an array, output it as a single object
-                  if ($null -ne $obj -and @($obj).Count -gt 1) {
+                  If ($obj -is [System.Collections.IEnumerable] -and $obj -isnot [string]){
                     , $obj
                   }
                   else {
                     $obj
                   }
+                  
               } -Force -ErrorAction SilentlyContinue
           }
       }
