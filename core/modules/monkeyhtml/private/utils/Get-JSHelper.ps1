@@ -71,24 +71,41 @@ Function Get-JSHelper{
                         );
                         If($null -ne $properties){
                             ForEach($prop in $properties.Psobject.Properties){
-                                If($prop.Name -eq 'crossorigin' -and ($Script:mode -ne 'cdn' -or $Script:mode -ne 'localcdn')){
+                                If($prop.Name -eq 'crossorigin' -and ($Script:mode -notmatch '(?i)cdn_(branch|latest|tag)' -or $Script:mode -notmatch '^localcdn$')){
                                     continue
                                 }
-                                If($prop.Name -eq 'integrity' -and ($Script:mode -ne 'cdn' -or $Script:mode -ne 'localcdn')){
+                                If($prop.Name -eq 'integrity' -and ($Script:mode -notmatch '(?i)cdn_(branch|latest|tag)' -or $Script:mode -notmatch '^localcdn$')){
                                     continue
                                 }
-                                If($Script:mode -eq 'cdn' -and $prop.Name -in @("src","href")){
+                                If($Script:mode -match '(?i)cdn_(branch|latest|tag)' -and $prop.Name -in @("src","href")){
                                     #Get baseUrl
                                     If($null -ne (Get-Variable -Name Repository -Scope Script -ErrorAction Ignore)){
                                         $_url = ("{0}/{1}" -f $Script:Repository,$prop.Value);
-                                        $jsDelivr = Convert-UrlToJsDelivr -Url $_url -Latest
-                                        [void]$tag.SetAttribute($prop.Name,$jsDelivr)
+                                        Try{
+                                            Switch($Script:mode){
+                                                'cdn_branch'{
+                                                    $jsDelivr = Convert-UrlToJsDelivr -Url $_url -Branch $script:Branch
+                                                    [void]$tag.SetAttribute($prop.Name,$jsDelivr)
+                                                }
+                                                'cdn_latest'{
+                                                    $jsDelivr = Convert-UrlToJsDelivr -Url $_url -Latest
+                                                    [void]$tag.SetAttribute($prop.Name,$jsDelivr)
+                                                }
+                                                'cdn_tag'{
+                                                    $jsDelivr = Convert-UrlToJsDelivr -Url $_url -Tag $script:GitHubTag
+                                                    [void]$tag.SetAttribute($prop.Name,$jsDelivr)
+                                                }
+                                            }
+                                        }
+                                        Catch{
+                                            Write-Error $_.Exception.Message
+                                        }
                                     }
                                     Else{
                                         Write-Warning $Script:messages.BaseUrlErrorMessage
                                     }
                                 }
-                                ElseIf($Script:mode -eq 'localcdn' -and $prop.Name -in @("src","href")){
+                                ElseIf($Script:mode -match '^localcdn$' -and $prop.Name -in @("src","href")){
                                     #Get baseUrl
                                     If($null -ne (Get-Variable -Name Repository -Scope Script -ErrorAction Ignore)){
                                         $_url = ("{0}/{1}" -f $Script:Repository,$prop.Value);

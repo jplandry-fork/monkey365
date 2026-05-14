@@ -68,10 +68,25 @@ Function New-HtmlAboutTool{
         )
         #Tool image
         #Create Monkey365 IMG
-        If($Script:mode -eq 'cdn' -or $Script:mode -eq 'localcdn'){
+        If($Script:mode -match '(?i)cdn_(branch|latest|tag)' -or $Script:mode -match '^localcdn$'){
             $baseUrl = ("{0}/{1}" -f $Script:Repository,'assets/inc-monkey/logo/MonkeyLogo.png');
-            If($Script:mode -eq 'cdn'){
-                $img_src = Convert-UrlToJsDelivr -Url $baseUrl -Latest
+            If($Script:mode -match '(?i)cdn_(branch|latest|tag)'){
+                Try{
+                    Switch($Script:mode){
+                        'cdn_branch'{
+                            $img_src = Convert-UrlToJsDelivr -Url $baseUrl -Branch $script:Branch
+                        }
+                        'cdn_latest'{
+                            $img_src = Convert-UrlToJsDelivr -Url $baseUrl -Latest
+                        }
+                        'cdn_tag'{
+                            $img_src = Convert-UrlToJsDelivr -Url $baseUrl -Tag $Script:GitHubTag
+                        }
+                    }
+                }
+                Catch{
+                    Write-Error $_.Exception.Message
+                }
             }
             Else{
                 $img_src = $baseUrl;

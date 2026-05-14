@@ -78,6 +78,7 @@ Function Get-AllModalHtmlObject{
             If($null -ne $extendedData){
                 Foreach($rawObject in @($extendedData)){
                     If($null -ne $rawObject -and ([System.Collections.IDictionary]).IsAssignableFrom($rawObject.GetType())){
+                        Write-Verbose ($Script:messages.AddNewModalObjectTo -f $finding.displayName)
                         $id = $rawObject.Item('id')
                         $format = $rawObject.Item('format')
                         $rawData = $rawObject.Item('rawData')

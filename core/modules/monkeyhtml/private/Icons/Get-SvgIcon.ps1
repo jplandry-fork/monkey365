@@ -48,12 +48,20 @@ Function Get-SvgIcon{
             'Monkey365'='assets/inc-monkey/logo/MonkeyLogo.png'
             'General'='assets/inc-entraicons/Microsoft_Entra_ID_color_icon.svg'
             'Users'='assets/inc-azicons/identity/10230-icon-service-Users.svg'
+            'User Settings'='assets/inc-azicons/identity/10433-icon-service-User-Settings.svg'
             'Groups'='assets/inc-azicons/identity/10223-icon-service-Groups.svg'
+            'Devices'='assets/inc-azicons/intune/10332-icon-service-Devices.svg'
             'App Registrations'='assets/inc-azicons/identity/10232-icon-service-App-Registrations.svg'
             'Enterprise Applications'='assets/inc-azicons/identity/10225-icon-service-Enterprise-Applications.svg'
             'Conditional Access'='assets/inc-azicons/security/10233-icon-service-Conditional-Access.svg'
-            'App Services'='assets/inc-azicons/app services/10035-icon-service-App-Services.svg'
+            'Privileged Identity Management'='assets/inc-azicons/identity/02251-icon-service-Entra-Privleged-Identity-Management.svg'
+            'Entra Properties'='assets/inc-azicons/identity/02679-icon-service-Tenant-Properties.svg'
             'Entra Identity Governance'='assets/inc-azicons/identity/10235-icon-service-Identity-Governance.svg'
+            'Entra Role Assignment'='assets/inc-azicons/identity/10340-icon-service-Entra-Identity-Roles-and-Administrators.svg'
+            'Entra Security'='assets/inc-azicons/identity/00321-icon-service-Security.svg'
+            'Security Defaults'='assets/inc-azicons/identity/00321-icon-service-Security.svg'
+            'Entra Connect'='assets/inc-azicons/identity/02854-icon-service-Entra-Connect.svg'
+            'External Collaboration'='assets/inc-azicons/new icons/034251-icon-service-external-id-modified.svg'
             'Identity Protection'='assets/inc-azicons/identity/10231-icon-service-Entra-ID-Protection.svg'
             'Applications'='assets/inc-azicons/identity/10225-icon-service-Enterprise-Applications.svg'
             'Subscription Policies'='assets/inc-azicons/management + governance/10316-icon-service-Policy.svg'
@@ -66,15 +74,15 @@ Function Get-SvgIcon{
             'Azure KeyVault'='assets/inc-azicons/security/10245-icon-service-Key-Vaults.svg'
             'Bastion'='assets/inc-azicons/networking/02422-icon-service-Bastions.svg'
             'Network Watcher'='assets/inc-azicons/networking/10066-icon-service-Network-Watcher.svg'
-            'Azure Disks'='assets/inc-azicons/compute/10032-icon-service-Disks.svg'
-            'SQL Server'='assets/inc-azicons/databases/10130-icon-service-SQL-Database.svg'
-            'Azure Virtual Machines'='assets/inc-azicons/compute/10021-icon-service-Virtual-Machine.svg'
+            'Disks'='assets/inc-azicons/compute/10032-icon-service-Disks.svg'
+            'SQL Database'='assets/inc-azicons/databases/10130-icon-service-SQL-Database.svg'
+            'Virtual Machines'='assets/inc-azicons/compute/10021-icon-service-Virtual-Machine.svg'
             'Network Security Groups'='assets/inc-azicons/networking/10067-icon-service-Network-Security-Groups.svg'
             'Storage Accounts'='assets/inc-azicons/storage/10086-icon-service-Storage-Accounts.svg'
-            'PostgreSQL Server'='assets/inc-azicons/databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg'
+            'Database for PostgreSQL'='assets/inc-azicons/databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg'
             'PostgreSQL Configuration'='assets/inc-azicons/databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg'
             'MySQL Configuration'='assets/inc-azicons/databases/10122-icon-service-Azure-Database-MySQL-Server.svg'
-            'MySQL Server'='assets/inc-azicons/databases/10122-icon-service-Azure-Database-MySQL-Server.svg'
+            'Database for MySQL'='assets/inc-azicons/databases/10122-icon-service-Azure-Database-MySQL-Server.svg'
             'Microsoft 365'='assets/inc-officeicons/64x64/office-365.svg'
             'Sharepoint Online'='assets/inc-officeicons/64x64/Microsoft_Office_SharePoint.svg'
             'Sharepoint Online Identity'='assets/inc-officeicons/64x64/Microsoft_Office_SharePoint.svg'
@@ -89,6 +97,16 @@ Function Get-SvgIcon{
             'Diagnostic Settings'='assets/inc-azicons/management + governance/00008-icon-service-Diagnostics-Settings.svg'
             'Public Ip Addresses'='assets/inc-azicons/networking/10069-icon-service-Public-IP-Addresses.svg'
             'Application Insights'='assets/inc-azicons/monitor/00012-icon-service-Application-Insights.svg'
+            'Cache for Redis'='assets/inc-azicons/databases/10137-icon-service-Cache-Redis.svg'
+            'Cache for Redis Enterprise'='assets/inc-azicons/databases/10137-icon-service-Cache-Redis.svg'
+            'Data Factory'='assets/inc-azicons/databases/10126-icon-service-Data-Factories.svg'
+            'Cosmos DB'='assets/inc-azicons/databases/10121-icon-service-Azure-Cosmos-DB.svg'
+            'App Service'='assets/inc-azicons/app services/10035-icon-service-App-Services.svg'
+            'App Service Slot'='assets/inc-azicons/app services/10035-icon-service-App-Services.svg'
+            'Functions'='assets/inc-azicons/compute/10029-icon-service-Function-Apps.svg'
+            'Functions Slot'='assets/inc-azicons/compute/10029-icon-service-Function-Apps.svg'
+            'App Service Environments'='assets/inc-azicons/app services/10047-icon-service-App-Service-Environments.svg'
+            'Container Instances'='assets/inc-azicons/containers/10104-icon-service-Container-Instances.svg'
         }
         #Set null
         $_iconPath = $null;
@@ -100,10 +118,25 @@ Function Get-SvgIcon{
             If($null -eq $icon){
                 $icon = 'assets/inc-azicons/general/10001-icon-service-All-Resources.svg'
             }
-            If($Script:mode -eq 'cdn' -or $Script:mode -eq 'localcdn'){
+            If($Script:mode -match '(?i)cdn_(branch|latest|tag)' -or $Script:mode -match '^localcdn$'){
                 $baseUrl = ("{0}/{1}" -f $Script:Repository,$icon);
-                If($Script:mode -eq 'cdn'){
-                    $_iconPath = Convert-UrlToJsDelivr -Url $baseUrl -Latest
+                If($Script:mode -match '(?i)cdn_(branch|latest|tag)'){
+                    Try{
+                        Switch($Script:mode){
+                            'cdn_branch'{
+                                $_iconPath = Convert-UrlToJsDelivr -Url $baseUrl -Branch $script:Branch
+                            }
+                            'cdn_latest'{
+                                $_iconPath = Convert-UrlToJsDelivr -Url $baseUrl -Latest
+                            }
+                            'cdn_tag'{
+                                $_iconPath = Convert-UrlToJsDelivr -Url $baseUrl -Tag $Script:GitHubTag
+                            }
+                        }
+                    }
+                    Catch{
+                        Write-Error $_.Exception.Message
+                    }
                 }
                 Else{
                     $_iconPath = $baseUrl;

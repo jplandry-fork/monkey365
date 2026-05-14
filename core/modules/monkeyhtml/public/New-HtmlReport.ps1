@@ -58,11 +58,19 @@ Function New-HtmlReport{
         [Parameter(Mandatory=$true, ParameterSetName = 'LocalCDN', HelpMessage="Load resources from local source")]
         [String]$LocalRepository,
 
-        [Parameter(Mandatory=$true, ParameterSetName = 'CDN', HelpMessage="Load resources from external source")]
-        [String]$Repository,
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_branch', HelpMessage="Load resources from external source")]
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_latest', HelpMessage="Load resources from external source")]
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_tag', HelpMessage="Load resources from external source")]
+        [System.Uri]$Repository,
 
-        [Parameter(Mandatory=$false, HelpMessage="Repository branch")]
-        [String]$Branch = "main",
+        [Parameter(Mandatory=$false, ParameterSetName = 'cdn_branch', HelpMessage="Repository branch")]
+        [String]$Branch,
+
+        [parameter(Mandatory= $false, ParameterSetName = 'cdn_latest', HelpMessage= "Use latest version")]
+        [Switch]$Latest,
+
+        [parameter(Mandatory= $false, ParameterSetName = 'cdn_tag', HelpMessage= "Use latest release tag")]
+        [Switch]$LatestTag,
 
         [Parameter(Mandatory=$true, ParameterSetName = 'Config', HelpMessage="Config object")]
         [Object]$Config,

@@ -189,14 +189,62 @@ Function New-HtmlTableFromObject{
                 #Decorate data
                 If($PSBoundParameters.ContainsKey('Decorate') -and $PSBoundParameters['Decorate']){
                     Foreach($decorateOptions in $PSBoundParameters['Decorate']){
-                        $itemName = $decorateOptions | Select-Object -ExpandProperty ItemName -ErrorAction Ignore
-                        $itemValue = $decorateOptions | Select-Object -ExpandProperty ItemValue -ErrorAction Ignore
+                        $itemName = $decorateOptions | Select-Object -ExpandProperty itemName -ErrorAction Ignore
+                        $itemValue = $decorateOptions | Select-Object -ExpandProperty itemValue -ErrorAction Ignore
                         $itemClassName = $decorateOptions | Select-Object -ExpandProperty className -ErrorAction Ignore
+                        $invert = $decorateOptions | Select-Object -ExpandProperty invert -ErrorAction Ignore
+                        Try{
+                            $out = $null;
+                            [void][bool]::TryParse($invert, [ref]$out);
+                            $invert = $out;
+                        }
+                        Catch{
+                            $invert = $false
+                        }
                         #Find element
+                        #https://stackoverflow.com/questions/4135317/make-first-letter-of-a-string-upper-case-with-maximum-performance
                         $element = $newxmlTable.SelectNodes(('//td[(count(//tr/th[.="{0}"]/preceding-sibling::*)+1)]' -f $itemName))
                         If($element){
                             ForEach($node in $element){
-                                If($node.InnerText.ToString().ToLower() -eq $itemValue.ToString()){
+                                If($node.InnerText.ToString().ToLower() -eq $itemValue.ToString().ToLower()){
+                                    If($invert){
+                                        Switch($node.InnerText.ToString().ToLower()){
+                                            'enabled'
+                                            {
+                                                $val = "disabled"
+                                            }
+                                            'disabled'
+                                            {
+                                                $val = "enabled"
+                                            }
+                                            'notset'
+                                            {
+                                                $val = "enabled"
+                                            }
+                                            'default'
+                                            {
+                                                $val = $node.InnerText.ToString().ToLower()
+                                            }
+                                        }
+                                    }
+                                    Else{
+                                        $val = $node.InnerText.ToString().ToLower()
+                                    }
+                                    $spanProperties = @{
+                                        Name = "span";
+                                        Attributes = @{
+                                            class = $itemClassName;
+                                        };
+                                        Text = $val;
+                                        CreateTextNode = $True;
+                                        Template = $TemplateObject;
+                                    }
+                                    #Create span tag
+                                    $span = New-HtmlTag @spanProperties
+                                    If($span){
+                                        $node.InnerText = $null
+                                        [void]$node.AppendChild($span)
+                                    }
                                     $node.LastChild.SetAttribute('class',$itemClassName)
                                 }
                             }

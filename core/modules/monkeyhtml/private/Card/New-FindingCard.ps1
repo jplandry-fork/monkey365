@@ -57,7 +57,7 @@ Function New-FindingCard{
     Process{
         Try{
             Foreach($findingObj in @($PSBoundParameters['FindingObject'])){
-                Write-Verbose ($Script:messages.NewCardMessage -f $findingObj.title)
+                Write-Verbose ($Script:messages.NewCardMessage -f $findingObj.displayName)
                 If($findingObj.statusCode.ToLower() -eq "manual" -or $findingObj.statusCode.ToLower() -eq "pass"){
                     $bodyObject = [xml] '<div class="row monkey-finding-row"></div>'
                 }
@@ -173,7 +173,7 @@ Function New-FindingCard{
                     }
                 }
                 Catch{
-                    Write-Warning ($Script:messages.UnableToGetProperty -f $findingObj.title)
+                    Write-Warning ($Script:messages.UnableToGetProperty -f $findingObj.displayName)
                     Write-Error $_.Exception
                 }
                 #Get references
@@ -209,9 +209,14 @@ Function New-FindingCard{
                 }
                 #>
                 #Fill card
-                foreach($section in $sections){
-                    Write-Verbose ($Script:messages.AppendElementMessageInfo -f $section.name, $findingObj.displayName);
-                    [void]$bodyObject.AppendChild($section.xml);
+                ForEach($section in $sections){
+                    Try{
+                        Write-Verbose ($Script:messages.AppendElementMessageInfo -f $section.name, $findingObj.displayName);
+                        [void]$bodyObject.AppendChild($section.xml);
+                    }
+                    Catch{
+                        Write-Error $_.Exception
+                    }
                 }
                 #Add body object to card body
                 If($findingObj.statusCode.ToLower() -in @('pass','manual')){
@@ -276,7 +281,7 @@ Function New-FindingCard{
                             [void]$_div.AppendChild($myTable);
                         }
                         Else{
-                            Write-Warning ($Scripts:messages.EmptySectionMessage -f "data",$findingObj.title);
+                            Write-Warning ($Scripts:messages.EmptySectionMessage -f "data",$findingObj.displayName);
                         }
                     }
                     #Add to body
@@ -286,7 +291,7 @@ Function New-FindingCard{
             }
         }
         Catch{
-            Write-Warning ($Script:messages.CardErrorMessage -f "Finding card", $findingObj.title);
+            Write-Warning ($Script:messages.CardErrorMessage -f "Finding card", $findingObj.displayName);
             Write-Error $_.Exception
         }
     }

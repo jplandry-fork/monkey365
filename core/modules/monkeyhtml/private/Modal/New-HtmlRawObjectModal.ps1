@@ -79,11 +79,13 @@ Function New-HtmlRawObjectModal{
         [void]$CodeTag.SetAttribute('class',$codeClass);
         [void]$CodeTag.SetAttribute('id',$CodeId);
         #Format data
-        If($Format.ToLower() -eq 'json'){
+        #TODO Add different formats
+        Try{
             $rawData = $Data | ConvertTo-Json -Depth 100 -Compress
         }
-        Else{
-            $rawData = $Data
+        Catch{
+            Write-Verbose $_.Exception
+            $rawData = $Data;
         }
         [void]$CodeTag.AppendChild($ModalBody.CreateTextNode($rawData));
         #Append to pre

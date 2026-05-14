@@ -1,18 +1,4 @@
-﻿# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
-Function Initialize-MonkeyHtml{
+﻿Function Initialize-MonkeyHtml{
     <#
         .SYNOPSIS
         Utility to set script vars and options to generate HTML report
@@ -58,14 +44,22 @@ Function Initialize-MonkeyHtml{
         })]
         [System.IO.FileInfo]$ConfigFile,
 
-        [Parameter(Mandatory=$true, ParameterSetName = 'CDN', HelpMessage="Load resources from external source")]
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_branch', HelpMessage="Load resources from external source")]
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_latest', HelpMessage="Load resources from external source")]
+        [Parameter(Mandatory=$true, ParameterSetName = 'cdn_tag', HelpMessage="Load resources from external source")]
         [System.Uri]$Repository,
 
         [Parameter(Mandatory=$true, ParameterSetName = 'LocalCDN', HelpMessage="Load resources from local source")]
         [System.Uri]$LocalRepository,
 
-        [Parameter(Mandatory=$false, HelpMessage="Repository branch")]
-        [String]$Branch = "main",
+        [Parameter(Mandatory=$false, ParameterSetName = 'cdn_branch', HelpMessage="Repository branch")]
+        [String]$Branch,
+
+        [parameter(Mandatory= $false, ParameterSetName = 'cdn_latest', HelpMessage= "Use latest version")]
+        [Switch]$Latest,
+
+        [parameter(Mandatory= $false, ParameterSetName = 'cdn_tag', HelpMessage= "Use latest release tag")]
+        [Switch]$LatestTag,
 
         [Parameter(Mandatory=$true, ParameterSetName = 'Config', HelpMessage="Config object")]
         [Object]$Config,
@@ -134,18 +128,49 @@ Function Initialize-MonkeyHtml{
                     Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "Config Object")
                     Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "Local path")
                 }
-                'cdn'{
+                { @("cdn_branch", "cdn_latest", "cdn_tag") -contains $_ }{
+                    #Set null
+                    $baseUrl = $null;
+                    #Set internal variable
+                    Set-Variable -Name Repository -Value $PSBoundParameters['Repository'] -Scope Script -Force
+                    #Set base url
                     $_url = ("{0}/assets/config.json" -f $PSBoundParameters['Repository']);
-                    $baseUrl = Convert-UrlToJsDelivr -Url $_url -Latest
-                    $content = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
-                    If($null -ne $content){
-                        Try{
-                            $_config = $content.Content | ConvertFrom-Json
-                            Set-Variable -Name Config -Value $_config -Scope Script -Force
-                            Set-Variable -Name Repository -Value $PSBoundParameters['Repository'] -Scope Script -Force
+                    #Get latest tagged version
+                    Switch($PSCmdlet.ParameterSetName.ToLower()){
+                        'cdn_branch'{
+                            #Set internal Var
                             Set-Variable -Name Branch -Value $Branch -Scope Script -Force
-                            Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "repository config object")
-                            Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "repository")
+                            #Get baseurl
+                            $baseUrl = Convert-UrlToJsDelivr -Url $_url -Branch $PSBoundParameters['Branch']
+                        }
+                        'cdn_latest'{
+                            #Set internal Var
+                            Set-Variable -Name UseLatest -Value $true -Scope Script -Force
+                            #Get baseurl
+                            $baseUrl = Convert-UrlToJsDelivr -Url $_url -Latest
+                        }
+                        'cdn_tag'{
+                            $tag = Get-MonkeyLatestReleaseFromGitHub -Url $PSBoundParameters['Repository']
+                            If($null -ne $tag){
+                                #Set internal Var
+                                Set-Variable -Name GitHubTag -Value $tag -Scope Script -Force
+                                #Get baseurl
+                                $baseUrl = Convert-UrlToJsDelivr -Url $_url -Tag $tag
+                            }
+                            Else{
+                                Write-Warning ("Unable to get latest Tag from {0} repository" -f $PSBoundParameters['Repository'])
+                            }
+                        }
+                    }
+                    If($null -ne $baseUrl){
+                        Try{
+                            $rawContent = Invoke-WebRequest -Uri $baseUrl -UseBasicParsing
+                            If($rawContent.StatusCode -eq [System.Net.HttpStatusCode]::OK){
+                                $_config = $rawContent.Content | ConvertFrom-Json
+                                Set-Variable -Name Config -Value $_config -Scope Script -Force
+                                Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "repository config object")
+                                Write-Verbose ($Script:messages.InitializeVarsInfoMessage -f "repository")
+                            }
                         }
                         Catch{
                             throw ("[MonkeyHtmlError] {0}: {1}" -f $Script:messages.ConfigFileErrorMessage,$_.Exception.Message)

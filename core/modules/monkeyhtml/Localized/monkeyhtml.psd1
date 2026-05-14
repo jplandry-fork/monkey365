@@ -15,4 +15,5 @@
     BaseUrlErrorMessage            = Unable to get baseUrl property from config file
     JsDelivrInfoMessage            = Url converted to {0}
     FileNotFoundErrorMessage       = Could not find file {0}
+    AddNewModalObjectTo            = Add modal object into {0}
 '@
