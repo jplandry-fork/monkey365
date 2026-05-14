@@ -74,7 +74,7 @@ function Get-MonkeyAZDisk {
 		#Get Azure Storage Auth
 		$AzureDiskConfig = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureDisk" } | Select-Object -ExpandProperty resource
 		#Get disks
-		$managed_disks = $O365Object.all_resources.Where({ $_.type -like 'Microsoft.Compute/disks' })
+		$managed_disks = $O365Object.all_resources.Where({ $_.type -match '^Microsoft\.Compute/disks$' })
 		if (-not $managed_disks) { continue }
 		#Set array
 		$all_managed_disks = $null;

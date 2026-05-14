@@ -74,25 +74,22 @@ function Get-MonkeyAZRMVM {
 		#Get Config
 		$AzureVMConfig = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureVm" } | Select-Object -ExpandProperty resource
 		#Get VMs
-		$vms_v2 = $O365Object.all_resources.Where({ $_.type -like 'Microsoft.Compute/virtualMachines' })
-		if (-not $vms_v2) { continue }
-		#set null
-		$vms = $null
+		$virtualMachines = $O365Object.all_resources.Where({ $_.type -match '^Microsoft\.Compute/virtualMachines$' })
 	}
 	process {
-		$msg = @{
-			MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure Virtual machines",$O365Object.current_subscription.displayName);
-			callStack = (Get-PSCallStack | Select-Object -First 1);
-			logLevel = 'info';
-			InformationAction = $O365Object.InformationAction;
-			Tags = @('AzureVMInfo');
-		}
-		Write-Information @msg
-		if ($vms_v2.Count -gt 0) {
-			$new_arg = @{
+        If($virtualMachines.Count -gt 0){
+		    $msg = @{
+			    MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure Virtual machines",$O365Object.current_subscription.displayName);
+			    callStack = (Get-PSCallStack | Select-Object -First 1);
+			    logLevel = 'info';
+			    InformationAction = $O365Object.InformationAction;
+			    Tags = @('AzureVMInfo');
+		    }
+		    Write-Information @msg
+            $new_arg = @{
 				APIVersion = $AzureVMConfig.api_version;
 			}
-			$p = @{
+            $p = @{
 				ScriptBlock = { Get-MonkeyAzVirtualMachineInfo -InputObject $_ };
 				Arguments = $new_arg;
 				Runspacepool = $O365Object.monkey_runspacePool;
@@ -103,28 +100,26 @@ function Get-MonkeyAZRMVM {
 				BatchSleep = $O365Object.nestedRunspaces.BatchSleep;
 				BatchSize = $O365Object.nestedRunspaces.BatchSize;
 			}
-			$vms = $vms_v2 | Invoke-MonkeyJob @p
-		}
-	}
-	end {
-		if ($vms) {
-			$vms.PSObject.TypeNames.Insert(0,'Monkey365.Azure.VirtualMachines')
-			[pscustomobject]$obj = @{
-				Data = $vms;
-				Metadata = $monkey_metadata;
-			}
-			$returnData.az_virtual_machines = $obj
-		}
-		else {
-			$msg = @{
-				MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure Virtual machines",$O365Object.TenantID);
-				callStack = (Get-PSCallStack | Select-Object -First 1);
-				logLevel = "verbose";
-				InformationAction = $O365Object.InformationAction;
-				Tags = @('AzureVMEmptyResponse');
-				Verbose = $O365Object.Verbose;
-			}
-			Write-Verbose @msg
+			$vms = $virtualMachines | Invoke-MonkeyJob @p
+            If ($vms) {
+			    $vms.PSObject.TypeNames.Insert(0,'Monkey365.Azure.VirtualMachines')
+			    [pscustomobject]$obj = @{
+				    Data = $vms;
+				    Metadata = $monkey_metadata;
+			    }
+			    $returnData.az_virtual_machines = $obj
+		    }
+            Else {
+			    $msg = @{
+				    MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure Virtual machines",$O365Object.TenantID);
+				    callStack = (Get-PSCallStack | Select-Object -First 1);
+				    logLevel = "verbose";
+				    InformationAction = $O365Object.InformationAction;
+				    Tags = @('AzureVMEmptyResponse');
+				    Verbose = $O365Object.Verbose;
+			    }
+			    Write-Verbose @msg
+		    }
 		}
 	}
 }

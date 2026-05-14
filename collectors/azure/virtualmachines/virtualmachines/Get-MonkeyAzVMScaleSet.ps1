@@ -42,7 +42,7 @@ function Get-MonkeyAzVMScaleSet {
 		[Parameter(Mandatory = $false,HelpMessage = "Background Collector ID")]
 		[string]$collectorId
 	)
-	begin {
+	Begin {
 		#Collector metadata
 		$monkey_metadata = @{
 			Id = "az00053";
@@ -52,7 +52,7 @@ function Get-MonkeyAzVMScaleSet {
 			resourceName = $null;
 			collectorName = "Get-MonkeyAzVMScaleSet";
 			ApiType = "resourceManagement";
-			description = "Collector to get information about Redis instances from Azure";
+			description = "Collector to get information about Virtual Machines ScaleSet from Azure";
 			Group = @(
 				"VirtualMachines"
 			);
@@ -74,25 +74,23 @@ function Get-MonkeyAzVMScaleSet {
 		#Get Config
 		$AzureVMScaleConfig = $O365Object.internal_config.ResourceManager | Where-Object { $_.Name -eq "azureVMScaleSet" } | Select-Object -ExpandProperty resource
 		#Get vm instances
-		$vms = $O365Object.all_resources.Where({ $_.Id -like "*Microsoft.Compute/virtualMachineScaleSets*" })
-		if (-not $vms) { continue }
-		$AllVMs = $null
+		$vmScaleSets = $O365Object.all_resources.Where({$_.type -match '^Microsoft\.Compute/virtualMachineScaleSets$'});
 	}
-	process {
-		$msg = @{
-			MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure Virtual Machine scale set",$O365Object.current_subscription.displayName);
-			callStack = (Get-PSCallStack | Select-Object -First 1);
-			logLevel = 'info';
-			InformationAction = $O365Object.InformationAction;
-			Tags = @('AzureVMInfo');
-		}
-		Write-Information @msg
-		if ($vms) {
-			$new_arg = @{
+	Process {
+        If($vmScaleSets.Count -gt 0){
+		    $msg = @{
+			    MessageData = ($message.MonkeyGenericTaskMessage -f $collectorId,"Azure Virtual Machine scale set",$O365Object.current_subscription.displayName);
+			    callStack = (Get-PSCallStack | Select-Object -First 1);
+			    logLevel = 'info';
+			    InformationAction = $O365Object.InformationAction;
+			    Tags = @('AzureVMInfo');
+		    }
+		    Write-Information @msg
+            $new_arg = @{
 				APIVersion = $AzureVMScaleConfig.api_version;
 			}
-			$p = @{
-				ScriptBlock = { Get-MonkeyAzVMScaleSetInfo -InputObject $_ };
+            $p = @{
+				ScriptBlock = { Get-MonkeyAzVirtualMachineScaleSetInfo -InputObject $_ };
 				Arguments = $new_arg;
 				Runspacepool = $O365Object.monkey_runspacePool;
 				ReuseRunspacePool = $true;
@@ -102,28 +100,26 @@ function Get-MonkeyAzVMScaleSet {
 				BatchSleep = $O365Object.nestedRunspaces.BatchSleep;
 				BatchSize = $O365Object.nestedRunspaces.BatchSize;
 			}
-			$AllVMs = $vms | Invoke-MonkeyJob @p
-		}
-	}
-	end {
-		if ($AllVMs) {
-			$AllVMs.PSObject.TypeNames.Insert(0,'Monkey365.Azure.VMScaleSet')
-			[pscustomobject]$obj = @{
-				Data = $AllVMs;
-				Metadata = $monkey_metadata;
-			}
-			$returnData.az_vm_scaleSet = $obj;
-		}
-		else {
-			$msg = @{
-				MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure Virtual Machine scale set",$O365Object.TenantID);
-				callStack = (Get-PSCallStack | Select-Object -First 1);
-				logLevel = "verbose";
-				InformationAction = $O365Object.InformationAction;
-				Tags = @('AzureVMEmptyResponse');
-				Verbose = $O365Object.Verbose;
-			}
-			Write-Verbose @msg
+			$AllVMs = $vmScaleSets | Invoke-MonkeyJob @p
+            If ($AllVMs) {
+			    $AllVMs.PSObject.TypeNames.Insert(0,'Monkey365.Azure.VMScaleSet')
+			    [pscustomobject]$obj = @{
+				    Data = $AllVMs;
+				    Metadata = $monkey_metadata;
+			    }
+			    $returnData.az_vm_scaleSet = $obj;
+		    }
+            Else {
+			    $msg = @{
+				    MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure Virtual Machine scale set",$O365Object.TenantID);
+				    callStack = (Get-PSCallStack | Select-Object -First 1);
+				    logLevel = "verbose";
+				    InformationAction = $O365Object.InformationAction;
+				    Tags = @('AzureVMEmptyResponse');
+				    Verbose = $O365Object.Verbose;
+			    }
+			    Write-Verbose @msg
+		    }
 		}
 	}
 }
