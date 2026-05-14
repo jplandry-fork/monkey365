@@ -79,7 +79,7 @@ function Get-MonkeyAzContainer {
 		#Get container groups
 		$container_groups = $O365Object.all_resources | Where-Object { $_.type -eq 'Microsoft.ContainerInstance/containerGroups' }
 		if (-not $container_groups) { continue }
-		$all_containers = @();
+		$all_containers = $null
 	}
 	process {
 		$msg = @{
@@ -90,27 +90,26 @@ function Get-MonkeyAzContainer {
 			Tags = @('AzureContainerInfo');
 		}
 		Write-Information @msg
-		#Get all containers registries
-		if ($container_groups) {
-			foreach ($container in $container_groups) {
-				#Set query
-				$p = @{
-					Id = $container.Id;
-					APIVersion = $cntAPI.api_version;
-					Verbose = $O365Object.Verbose;
-					Debug = $O365Object.Debug;
-					InformationAction = $O365Object.InformationAction;
-				}
-				$my_container = Get-MonkeyAzObjectById @p
-				if ($my_container) {
-					#Add container registries to array
-					$all_containers += $my_container
-				}
+        If ($container_groups.Count -gt 0) {
+			$new_arg = @{
+				APIVersion = $cntAPI.api_version;
 			}
+			$p = @{
+				ScriptBlock = { Get-MonkeyAzContainerInfo -InputObject $_ };
+				Arguments = $new_arg;
+				Runspacepool = $O365Object.monkey_runspacePool;
+				ReuseRunspacePool = $true;
+				Debug = $O365Object.VerboseOptions.Debug;
+				Verbose = $O365Object.VerboseOptions.Verbose;
+				MaxQueue = $O365Object.nestedRunspaces.MaxQueue;
+				BatchSleep = $O365Object.nestedRunspaces.BatchSleep;
+				BatchSize = $O365Object.nestedRunspaces.BatchSize;
+			}
+			$all_containers = $container_groups | Invoke-MonkeyJob @p
 		}
 	}
-	end {
-		if ($all_containers) {
+	End {
+		If ($all_containers) {
 			$all_containers.PSObject.TypeNames.Insert(0,'Monkey365.Azure.Containers')
 			[pscustomobject]$obj = @{
 				Data = $all_containers;
@@ -118,7 +117,7 @@ function Get-MonkeyAzContainer {
 			}
 			$returnData.az_containers = $obj
 		}
-		else {
+		Else {
 			$msg = @{
 				MessageData = ($message.MonkeyEmptyResponseMessage -f "Azure Containers",$O365Object.TenantID);
 				callStack = (Get-PSCallStack | Select-Object -First 1);
