@@ -42,7 +42,7 @@ Function Get-MonkeyAzAdvancedThreatProtection {
         [Object]$Resource,
 
         [parameter(Mandatory=$false, HelpMessage="API version")]
-        [String]$APIVersion = "2017-08-01-preview"
+        [String]$APIVersion = "2019-01-01"
     )
     Process{
         $p = @{
