@@ -39,15 +39,15 @@ Function Get-MonkeyAzAppServiceSnapShot {
 	[CmdletBinding()]
 	Param (
         [Parameter(Mandatory=$true, ValueFromPipeline = $True)]
-        [Object]$App,
+        [Object]$InputObject,
 
         [parameter(Mandatory=$false, HelpMessage="API version")]
-        [String]$APIVersion = "2021-02-01"
+        [String]$APIVersion = "2025-05-01"
     )
     Process{
         try{
             $p = @{
-                Id = $App.Id;
+                Id = $InputObject.Id;
                 Resource = 'config/web/snapshots';
                 ApiVersion = $APIVersion;
                 Verbose = $O365Object.verbose;

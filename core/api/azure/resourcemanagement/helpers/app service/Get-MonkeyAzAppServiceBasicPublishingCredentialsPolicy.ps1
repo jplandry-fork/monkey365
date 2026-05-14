@@ -39,15 +39,15 @@ Function Get-MonkeyAzAppServiceBasicPublishingCredentialsPolicy {
 	[CmdletBinding()]
 	Param (
         [Parameter(Mandatory=$true, ValueFromPipeline = $True)]
-        [Object]$App,
+        [Object]$InputObject,
 
         [parameter(Mandatory=$false, HelpMessage="API version")]
-        [String]$APIVersion = "2024-04-01"
+        [String]$APIVersion = "2025-05-01"
     )
     Process{
         try{
             $p = @{
-                Id = $App.Id;
+                Id = $InputObject.Id;
                 Resource = 'basicPublishingCredentialsPolicies/scm';
                 Method = 'GET';
                 ApiVersion = $APIVersion;

@@ -39,32 +39,72 @@ Function New-MonkeyAppServiceObject {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope="Function")]
 	[CmdletBinding()]
 	Param (
-        [parameter(Mandatory= $True, HelpMessage="app service object")]
-        [Object]$App
+        [parameter(Mandatory= $True, ValueFromPipeline = $True, HelpMessage="app service object")]
+        [Object]$InputObject
     )
     Process{
         try{
             #Create ordered dictionary
             $AppObject = [ordered]@{
-                id = $App.Id;
-		        name = $App.Name;
-                location = $App.location;
-                kind = if($null -ne $App.PsObject.Properties.Item('kind')){$App.kind}else{$null};
-		        tags = if($null -ne $App.Psobject.Properties.Item('tags')){$App.tags}else{$null};
-                type = $App.type;
-                properties = $App.properties;
-                resourceGroupName = $App.Id.Split("/")[4];
-		        fqdn = $App.properties.defaultHostName;
-                httpsOnly = $App.properties.httpsOnly;
-                appConfig = $null;
+                id = $InputObject.Id;
+		        name = $InputObject.Name;
+                location = $InputObject.location;
+                kind = $InputObject | Select-Object -ExpandProperty kind -ErrorAction Ignore
+		        tags = $InputObject | Select-Object -ExpandProperty tags -ErrorAction Ignore
+                type = $InputObject | Select-Object -ExpandProperty type -ErrorAction Ignore
+                properties = $InputObject | Select-Object -ExpandProperty properties -ErrorAction Ignore
+                resourceGroupName = $InputObject.Id.Split("/")[4];
+		        fqdn = $InputObject.properties.defaultHostName;
+                networking = [PSCustomObject]@{
+                    httpsOnly = $InputObject.properties | Select-Object -ExpandProperty httpsOnly -ErrorAction Ignore
+                    endToEndEncryptionEnabled = $InputObject.properties | Select-Object -ExpandProperty endToEndEncryptionEnabled -ErrorAction Ignore
+                    minimumTlsVersion = $null;
+                    settings = [PSCustomObject]@{
+                        hostName = $InputObject.properties | Select-Object -ExpandProperty defaultHostName -ErrorAction Ignore
+                        inboundIpAddress = $InputObject.properties | Select-Object -ExpandProperty inboundIpAddress -ErrorAction Ignore
+                        outboundIpAddresses = $InputObject.properties | Select-Object -ExpandProperty outboundIpAddresses -ErrorAction Ignore
+                    };
+                    publicNetworkAccess = $InputObject.properties | Select-Object -ExpandProperty publicNetworkAccess -ErrorAction Ignore
+                    subnet = $null;
+                    virtualNetworkId = $null;
+                    privateEndpointConnections = $null;
+                    virtualNetworkConnections = $null;
+                    hybridConnectionRelays = $null;
+                    privateDNS = $null;
+                };
+                config = $null;
                 identity = [PSCustomObject]@{
                     enabled = $false;
                     type = $null;
                     rawData = $null;
                 };
+                stack = [PSCustomObject]@{
+                    operatingSystem = $null;
+                    python = [PSCustomObject]@{
+                        enabled = $false
+                        version = $null;
+                    };
+                    dotnet = [PSCustomObject]@{
+                        enabled = $false
+                        version = $null;
+                    };
+                    php = [PSCustomObject]@{
+                        enabled = $false
+                        version = $null;
+                    };
+                    node = [PSCustomObject]@{
+                        enabled = $false
+                        version = $null;
+                    };
+                    java = [PSCustomObject]@{
+                        enabled = $false
+                        version = $null;
+                    };
+                };
                 basicPublishingCredentialsPolicies = $null;
                 authSettings = $null;
                 authSettingsV2 = $null;
+                appSettings = $null;
                 locks = $null;
                 diagnosticSettings = [PSCustomObject]@{
                     enabled = $false;
@@ -83,7 +123,7 @@ Function New-MonkeyAppServiceObject {
                         rawData = $null;
                     };
                 };
-                rawObject = $App;
+                rawObject = $InputObject;
             }
             #Create PsObject
             $_obj = New-Object -TypeName PsObject -Property $AppObject

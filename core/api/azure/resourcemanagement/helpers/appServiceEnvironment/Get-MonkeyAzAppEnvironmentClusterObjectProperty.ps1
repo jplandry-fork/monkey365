@@ -1,4 +1,4 @@
-# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
+﻿# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Function Get-MonkeyAzAppServiceConfiguration {
+Function Get-MonkeyAzAppEnvironmentClusterObjectProperty {
     <#
         .SYNOPSIS
-		Get app service configuration
+		Get property from App Environment cluster object
 
         .DESCRIPTION
-		Get app service configuration
+		Get property from App Environment cluster object
 
         .INPUTS
 
@@ -29,38 +29,27 @@ Function Get-MonkeyAzAppServiceConfiguration {
         .NOTES
 	        Author		: Juan Garrido
             Twitter		: @tr1ana
-            File Name	: Get-MonkeyAzAppServiceConfiguration
+            File Name	: Get-MonkeyAzAppEnvironmentClusterObjectProperty
             Version     : 1.0
 
         .LINK
             https://github.com/silverhack/monkey365
     #>
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSReviewUnusedParameter", "", Scope="Function")]
 	[CmdletBinding()]
 	Param (
-        [Parameter(Mandatory=$true, ValueFromPipeline = $True)]
+        [Parameter(Mandatory=$True, ValueFromPipeline = $True, HelpMessage="VM object")]
         [Object]$InputObject,
 
-        [parameter(Mandatory=$false, HelpMessage="API version")]
-        [String]$APIVersion = "2025-05-01"
+        [Parameter(Mandatory=$True, HelpMessage="Property")]
+        [String]$Property
     )
     Process{
         try{
-            $p = @{
-                Id = $InputObject.Id;
-                Resource = 'config';
-                ApiVersion = $APIVersion;
-                Verbose = $O365Object.verbose;
-                Debug = $O365Object.debug;
-                InformationAction = $O365Object.InformationAction;
-            }
-            Get-MonkeyAzObjectById @p
+            @($InputObject.properties.clusterSettings).Where({$_.name -match $Property}) | Select-Object -ExpandProperty value -ErrorAction Ignore
         }
         catch{
             Write-Verbose $_
         }
-    }
-    End{
-        #Nothing to do here
     }
 }

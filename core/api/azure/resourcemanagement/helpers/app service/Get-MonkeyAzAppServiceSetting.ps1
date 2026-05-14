@@ -1,4 +1,4 @@
-# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
+﻿# Monkey365 - the PowerShell Cloud Security Tool for Azure and Microsoft 365 (copyright 2022) by Juan Garrido
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Function Get-MonkeyAzAppServiceAuthSettingV2 {
+Function Get-MonkeyAzAppServiceSetting {
     <#
         .SYNOPSIS
-		Get app service auth settings V2
+		Get app service settings
 
         .DESCRIPTION
-		Get app service auth settings V2
+		Get app service settings
 
         .INPUTS
 
@@ -29,7 +29,7 @@ Function Get-MonkeyAzAppServiceAuthSettingV2 {
         .NOTES
 	        Author		: Juan Garrido
             Twitter		: @tr1ana
-            File Name	: Get-MonkeyAzAppServiceAuthSettingV2
+            File Name	: Get-MonkeyAzAppServiceSetting
             Version     : 1.0
 
         .LINK
@@ -46,18 +46,16 @@ Function Get-MonkeyAzAppServiceAuthSettingV2 {
     )
     Process{
         try{
-            if($InputObject.kind -eq 'functionapp'){
-                $p = @{
-                    Id = $InputObject.Id;
-                    Resource = 'config/authsettingsV2/list';
-                    Method = 'GET';
-                    ApiVersion = $APIVersion;
-                    Verbose = $O365Object.verbose;
-                    Debug = $O365Object.debug;
-                    InformationAction = $O365Object.InformationAction;
-                }
-                Get-MonkeyAzObjectById @p
+            $p = @{
+                Id = $InputObject.Id;
+                Resource = 'config/appsettings/list';
+                ApiVersion = $APIVersion;
+                Method = 'POST';
+                Verbose = $O365Object.verbose;
+                Debug = $O365Object.debug;
+                InformationAction = $O365Object.InformationAction;
             }
+            Get-MonkeyAzObjectById @p
         }
         catch{
             Write-Verbose $_
