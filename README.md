@@ -30,7 +30,17 @@ Monkey365 is designed to simplify Microsoft cloud security assessments without r
 - Self-contained PowerShell module with bundled dependencies
 - No external module installation required
 - No additional Microsoft PowerShell modules required
+- No dependency on common external modules such as:
+  - ExchangeOnlineManagement
+  - Az PowerShell / Azure CLI
+  - Microsoft Graph PowerShell SDK
 - Security posture assessment for Microsoft 365, Azure, and Microsoft Entra ID
+- Coverage for major Microsoft 365 services including:
+  - Exchange Online
+  - SharePoint Online
+  - Microsoft Teams
+  - Microsoft Purview
+  - Microsoft Fabric
 - CIS benchmark and compliance checks
 - HTML, JSON, and CSV reporting
 - Support for Azure Public, China, and Government cloud environments
