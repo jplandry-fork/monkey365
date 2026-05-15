@@ -66,7 +66,7 @@ Invoke-Monkey365
 
 $options = @{
     Instance        = 'Microsoft365'
-    Collect         = 'ExchangeOnline'
+    Collect         = @('ExchangeOnline', 'SharePointOnline')
     PromptBehavior  = 'SelectAccount'
     IncludeEntraID  = $true
     ExportTo        = 'HTML'
@@ -135,7 +135,12 @@ Example assessment:
 ```powershell
 $options = @{
     Instance        = 'Microsoft365'
-    Collect         = 'ExchangeOnline'
+    Collect         = @(
+		'ExchangeOnline',
+		'MicrosoftFabric',
+		'MicrosoftTeams',
+		'SharePointOnline'
+	)
     PromptBehavior  = 'SelectAccount'
     IncludeEntraID  = $true
     ExportTo        = 'HTML'
