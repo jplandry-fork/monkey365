@@ -46,7 +46,7 @@ When the Microsoft Graph Client ID is selected, Monkey365 will request the follo
 - AuditLog.Read.All
 - AccessReview.Read.All
 
-These permissions allow Monkey365 to perform a comprehensive security and configuration assessment across Entra ID, including privileged access, audit logs, identity protection, and directory‑wide configuration.
+These permissions allow Monkey365 to perform a comprehensive security and configuration assessment across Entra ID, including privileged access, identity protection or directory‑wide configuration.
 
 The above scopes are configurable and can be set in [monkey365.config](../configuration/configuration-file.md) configuration file under the scopes section, as shown below:
 

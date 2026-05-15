@@ -28,6 +28,7 @@ $p = @{
     AccessToken = $graph;
     IncludeEntraId = $true;
     TenantId = "00000000-0000-0000-0000-000000000000";
+	ExportTo = @('HTML');
     Verbose = $true;
     InformationAction = "Continue"
 }
@@ -54,6 +55,7 @@ $p = @{
     AccessToken = $accessTokens;
     IncludeEntraId = $true;
     TenantId = "00000000-0000-0000-0000-000000000000";
+	ExportTo = @('HTML');
     Verbose = $true;
     InformationAction = "Continue"
 }

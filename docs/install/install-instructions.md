@@ -31,6 +31,9 @@ SerializationVersion           1.1.0.1
 WSManStackVersion              3.0
 ```
 
+???+ info
+    Monkey365 is distributed as a self-contained PowerShell module and includes all required dependencies. No additional Microsoft PowerShell modules are required.
+
 ### Install PowerShell on non-Windows platforms
 
 PowerShell 7.x can be installed on macOS, Linux, and Windows but is not installed by default. For installation on non-Windows systems (i.e., Linux or macOS) please refer to the installation notes on Microsoft:

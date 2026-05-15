@@ -26,19 +26,35 @@ The HTML report is entirely independent of the JSON or CSV report. As a result, 
 
 ## Exporting options
 
-Monkey365 HTML reports use the `jsDelivr` CDN to load resources directly from GitHub. By default, `htmlReportFromCDN` is set to `true`, and the `assetsRepository` property points to the standard assets repository at https://github.com/silverhack/monkey365assets. The base [configuration](../configuration/configuration-file.md) is structured as follows:
+Monkey365 HTML reports use the `jsDelivr` CDN to serve resources directly from GitHub repositories. By default, `htmlReportFromCDN` is set to `true`, and the `assets` are loaded from the official Monkey365 assets repository through `jsDelivr`. The base [configuration](../configuration/configuration-file.md) is structured as follows:
 
 ```json 
 "htmlSettings": {
-	"convertPassFindingToGood": true,
-	"assetsRepository":"https://github.com/silverhack/monkey365assets",
-	"localHtmlReport": {
-		"assetsPath": "localassets",
-		"enabled": "false"
-	},
-	"htmlReportFromCDN": "true"
-},
+    "convertPassFindingToGood": true,
+    "assets": {
+        "repository": "https://github.com/silverhack/monkey365assets",
+        "branch": "main",
+        "useLatestTag": "true"
+    },
+    "localHtmlReport": {
+        "assetsPath": "localassets",
+        "enabled": "false"
+    },
+    "htmlReportFromCDN": "true"
+}
 ```
+
+### Assets configuration
+
+The assets section controls how Monkey365 references HTML report resources through the jsDelivr CDN.
+
+| Property       | Description                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repository`   | GitHub repository containing the HTML report assets. Set to the standard assets repository at https://github.com/silverhack/monkey365assets |
+| `branch`       | Specific branch used by jsDelivr when serving assets                                                                                        |
+| `useLatestTag` | When set to `true`, jsDelivr serves assets from the latest available release tag instead of the configured branch                           |
+
+If `useLatestTag` is enabled, Monkey365 will reference assets from the latest published release available in the repository. Otherwise, assets will be served from the branch specified in the branch property.
 
 As an alternative, you can enable the legacy UNC mode. This mode downloads a local copy of all required assets and updates the report to use local links. To activate it, specify a local or UNC path in the `assetsPath` property and set `enabled` to `true`.
 
@@ -51,23 +67,29 @@ There is an option to use an in-house CDN by configuring your own GitHub reposit
 
 * Download assets via GitHub
 * Unpack it and upload files into your CDN (e.g. private GitHub repository)
-* Set the `assetsRepository`property to new CDN link
+* Set the `repository`property to new CDN link
 
 ### Local Server
 
-Monkey365 can also serve static HTML assets (CSS, JavaScript, images, fonts, and more) through a dedicated local web server endpoint rather than loading them from GitHub. To enable this option, set the assetsPath property to the base URL where the static assets are hosted.
+Monkey365 can also serve static HTML assets (CSS, JavaScript, images, fonts, and more) from a local web server instead of using the jsDelivr CDN. To enable this option, set localHtmlReport.enabled to true and configure assetsPath with the base URL where the static assets are hosted.
 
-```json
+```json 
 "htmlSettings": {
     "convertPassFindingToGood": true,
-        "assetsRepository":"https://github.com/silverhack/monkey365assets",
-	"localHtmlReport": {
-	    "assetsPath": "http(s)://your_local_server/localassets/",
-	    "enabled": "true"
-	},
+    "assets": {
+        "repository": "https://github.com/silverhack/monkey365assets",
+        "branch": "main",
+        "useLatestTag": "true"
+    },
+    "localHtmlReport": {
+        "assetsPath": "http(s)://your_local_server/localassets/",
+        "enabled": "false"
+    },
     "htmlReportFromCDN": "true"
 }
 ```
+
+You can host the assets on any internal or external web server that is accessible from the system where the HTML report is opened.
 
 ## Compliance
 
