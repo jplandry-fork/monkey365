@@ -67,14 +67,15 @@
                         "conditions": [
                             [
 								"ne",
-                                "privateEndpointConnections.id"
+                                "id"
                             ],
 							[
-                                "networking.privateEndpointConnections.privateLinkServiceConnectionState.status",
+                                "privateLinkServiceConnectionState.status",
                                 "eq",
 								"Approved"
                             ]
                         ],
+						"whereObject":"networking.privateEndpointConnections",
 						"operator":"and"
                     }
                 ]
@@ -91,7 +92,7 @@
                     "name": "Name",
                     "location": "location",
                     "resourceGroupName": "Resource Group Name",
-					"privateEndpointConnections.id": "Private Endpoint"
+					"networking.privateEndpointConnections.id": "Private Endpoint"
                 },
                 "expandObject": null
             },
@@ -120,14 +121,14 @@
                     "name": "Name",
                     "location": "location",
                     "resourceGroupName": "Resource Group Name",
-					"privateEndpointConnections.id": "Private Endpoint"
+					"networking.privateEndpointConnections.id": "Private Endpoint"
                 },
                 "expandObject": null
             },
             "status": {
                 "keyName": ["name"],
                 "message": "Ensure that Cosmos DB uses Private Endpoints where possible for {name}",
-                "defaultMessage": null
+                "defaultMessage": "Ensure that Cosmos DB uses Private Endpoints where possible"
             },
             "properties": {
                 "resourceName": "name",

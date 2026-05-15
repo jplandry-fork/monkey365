@@ -60,7 +60,7 @@
                 ]
             }
         ],
-        "shouldExist": null,
+        "shouldExist": "true",
         "returnObject": null,
         "removeIfNotExists": null
     },
