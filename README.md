@@ -33,7 +33,7 @@ Monkey365 is designed to simplify Microsoft cloud security assessments without r
   - Microsoft 365
   - Azure
   - Microsoft Entra ID
-- Coverage for major Microsoft 365 services including:
+- Coverage for major Microsoft 365 workloads including:
   - Exchange Online
   - SharePoint Online
   - Microsoft Teams
@@ -62,7 +62,6 @@ Install the Monkey365 PowerShell module and run.
 ```powershell
 Install-Module -Name monkey365 -Scope CurrentUser
 Import-Module monkey365
-Invoke-Monkey365
 
 $options = @{
     Instance        = 'Microsoft365'
@@ -76,7 +75,7 @@ Invoke-Monkey365 @options
 ```
 
 > [!NOTE]
-> Monkey365 is distributed as a self-contained PowerShell module and includes all required dependencies. No additional Microsoft PowerShell modules are required.
+> Monkey365 includes bundled dependencies and does not require additional Microsoft PowerShell modules.
 
 ---
 
@@ -84,7 +83,7 @@ Invoke-Monkey365 @options
 
 Monkey365 is a collector-based PowerShell module used to review the security posture of cloud environments. It scans Microsoft 365, Azure, and Microsoft Entra ID for potential security issues, configuration weaknesses, and deviations from security best practices.
 
-The tool provides recommendations to help organizations strengthen their cloud security posture and improve compliance readiness.
+The framework provides recommendations to help organizations strengthen their cloud security posture and improve compliance readiness.
 
 ---
 
