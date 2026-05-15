@@ -52,8 +52,8 @@
                         "conditions": [
                             [
                                 "properties.minimumTlsVersion",
-                                "notin",
-                                ["TLS1_2","TLS1_3"]
+                                "notmatch",
+                                "^TLS1_[23]$"
                             ]
                         ]
                     }
