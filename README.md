@@ -53,38 +53,30 @@ Monkey365 is designed to simplify Microsoft cloud security assessments without r
 
 ---
 
-# Quick Start
+# Get Started
 
-Install Monkey365 from the PowerShell Gallery:
+Install the Monkey365 PowerShell module and run.
+
+[Zero configuration](https://silverhack.github.io/monkey365/install/install-instructions/) and no external Microsoft modules are required.
 
 ```powershell
 Install-Module -Name monkey365 -Scope CurrentUser
-```
-
-Import the module:
-
-```powershell
 Import-Module monkey365
-```
+Invoke-Monkey365
 
-Run a basic assessment:
-
-```powershell
 $options = @{
-    Instance = 'Microsoft365';
-    Collect = 'SharePointOnline';
-    PromptBehavior = 'SelectAccount';
-    IncludeEntraID = $true;
-    ExportTo = 'HTML';
+    Instance        = 'Microsoft365'
+    Collect         = 'ExchangeOnline'
+    PromptBehavior  = 'SelectAccount'
+    IncludeEntraID  = $true
+    ExportTo        = 'HTML'
 }
-$assets = Invoke-Monkey365 @options
+
+Invoke-Monkey365 @options
 ```
 
-Get available options and examples:
-
-```powershell
-Get-Help Invoke-Monkey365 -Detailed
-```
+> [!NOTE]
+> Monkey365 is distributed as a self-contained PowerShell module and includes all required dependencies. No additional Microsoft PowerShell modules are required.
 
 ---
 
@@ -93,71 +85,6 @@ Get-Help Invoke-Monkey365 -Detailed
 Monkey365 is a collector-based PowerShell module used to review the security posture of cloud environments. It scans Microsoft 365, Azure, and Microsoft Entra ID for potential security issues, configuration weaknesses, and deviations from security best practices.
 
 The tool provides recommendations to help organizations strengthen their cloud security posture and improve compliance readiness.
-
----
-
-# Installation
-
-## PowerShell Gallery
-
-Install the latest stable version:
-
-```powershell
-Install-Module -Name monkey365 -Scope CurrentUser
-```
-
-Install the latest prerelease version:
-
-```powershell
-Install-Module -Name monkey365 -Scope CurrentUser -AllowPrerelease
-```
-
-Update Monkey365:
-
-```powershell
-Update-Module -Name monkey365 -Scope CurrentUser
-```
-
-Force reinstall Monkey365:
-
-```powershell
-Install-Module -Name monkey365 -Scope CurrentUser -Force
-```
-
-> [!NOTE]
-> Monkey365 is distributed as a self-contained PowerShell module and includes all required dependencies. No additional Microsoft PowerShell modules are required.
-
-## GitHub Releases
-
-Download the latest release from the following page:
-
-https://github.com/silverhack/monkey365/releases
-
-After downloading the release package, extract the archive to a suitable directory.
-
-Use the PowerShell `Unblock-File` cmdlet to unblock extracted files if required:
-
-```powershell
-Get-ChildItem -Recurse C:\monkey365 | Unblock-File
-```
-
-Import the module:
-
-```powershell
-Import-Module monkey365
-```
-
-If Monkey365 is not located in a `PSModulePath` directory, import it using an explicit path:
-
-```powershell
-Import-Module C:\temp\monkey365
-```
-
-Reimport the module into the current PowerShell session:
-
-```powershell
-Import-Module C:\temp\monkey365 -Force
-```
 
 ---
 
