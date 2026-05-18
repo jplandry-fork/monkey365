@@ -318,134 +318,122 @@ Function Invoke-Monkey365{
         [Switch]$ListFramework
     )
     dynamicparam{
-        # Set available instance class
-        $instance_class = @{
-            Azure = $Script:azure_plugins
-            Microsoft365 = $Script:m365_plugins
-        }
         # set a new dynamic parameter
-        $paramDictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+        $paramDictionary = [System.Management.Automation.RuntimeDefinedParameterDictionary]::new()
         # check to see whether the user already chose an instance
-        if(Get-Variable -Name Instance -ErrorAction Ignore){
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $analysis_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $analysis_attr_name.Mandatory = $false
-            $attributeCollection.Add($analysis_attr_name)
-
-            # set the ValidateSet attribute
-            $token_attr_name = New-Object System.Management.Automation.ValidateSetAttribute($instance_class.Item($Instance))
-            $attributeCollection.Add($token_attr_name)
-
-            # create the dynamic -Collect parameter
-            $analysis_pname = 'Collect'
-            $analysis_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($analysis_pname,
-            [Array], $attributeCollection)
-            $paramDictionary.Add($analysis_pname, $analysis_type_dynParam)
+        if ($PSBoundParameters.ContainsKey('Instance')) {
+            $collectValues = switch ($PSBoundParameters['Instance']) {
+                'Azure' {
+                    $script:azure_plugins
+                }
+                'Microsoft365' {
+                    $script:m365_plugins
+                }
+                default {
+                    @()
+                }
+            }
+            if (-not $collectValues -or $collectValues.Count -eq 0) {
+                return $paramDictionary
+            }
+            If ($collectValues -and $collectValues.Count -gt 0) {
+                $paramDictionary.Add(
+                    'Collect',
+                    (New-DynamicParameter `
+                        -Name 'Collect' `
+                        -Type ([string[]]) `
+                        -ValidateSet ([string[]]$collectValues))
+                )
+            }
         }
         #Add parameters for Azure instance
-        if($null -ne (Get-Variable -Name Instance -ErrorAction Ignore) -and $Instance -eq 'Azure'){
-            #Create the -AllSubscriptions switch parameter
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $all_sbs_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $all_sbs_attr_name.Mandatory = $false
-            $attributeCollection.Add($all_sbs_attr_name)
-
-            #Create alias for -AllSubscriptions switch param
-            $allsbs_alias = New-Object System.Management.Automation.AliasAttribute -ArgumentList 'all_subscriptions'
-            $attributeCollection.Add($allsbs_alias)
-
-            $sbs_pname = 'AllSubscriptions'
-            $analysis_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($sbs_pname,
-            [switch], $attributeCollection)
-            $paramDictionary.Add($sbs_pname, $analysis_type_dynParam)
-
-            #Create the -Subscriptions string parameter
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $sbs_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $sbs_attr_name.Mandatory = $false
-            $attributeCollection.Add($sbs_attr_name)
-
-            $sbs_pname = 'Subscriptions'
-            $analysis_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($sbs_pname,
-            [string], $attributeCollection)
-            $paramDictionary.Add($sbs_pname, $analysis_type_dynParam)
-
-            #Create the -ResourceGroups string parameter
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $rg_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $rg_attr_name.Mandatory = $false
-            $attributeCollection.Add($rg_attr_name)
-
-            $rg_pname = 'ResourceGroups'
-            $rg_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($rg_pname,
-            [String[]], $attributeCollection)
-            $paramDictionary.Add($rg_pname, $rg_type_dynParam)
-
-            #Create the -ExcludeResources File parameter
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $exclude_rsrc_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $exclude_rsrc_attr_name.Mandatory = $false
-            $attributeCollection.Add($exclude_rsrc_attr_name)
-
-            $rsrc_pname = 'ExcludedResources'
-            $rsrc_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($rsrc_pname,
-            [System.IO.FileInfo], $attributeCollection)
-            $paramDictionary.Add($rsrc_pname, $rsrc_type_dynParam)
+        If($PSBoundParameters.ContainsKey('Instance') -and $PSBoundParameters['Instance'] -eq 'Azure'){
+            #Add AllSubscriptions parameter
+            $paramDictionary.Add(
+                'AllSubscriptions',
+                (New-DynamicParameter `
+                    -Name 'AllSubscriptions' `
+                    -Type ([switch]) `
+                    -Alias 'all_subscriptions')
+            )
+            #Add Subscriptions parameter
+            $paramDictionary.Add(
+                'Subscriptions',
+                (New-DynamicParameter `
+                    -Name 'Subscriptions' `
+                    -Type ([string]))
+            )
+            #Add ResourceGroups parameter
+            $paramDictionary.Add(
+                'ResourceGroups',
+                (New-DynamicParameter `
+                    -Name 'ResourceGroups' `
+                    -Type ([string[]]))
+            )
+            #Add ResourceExclusionFile
+            $paramDictionary.Add(
+                'ExcludedResources',
+                (New-DynamicParameter `
+                    -Name 'ExcludedResources' `
+                    -Type ([System.IO.FileInfo]) `
+                    -Alias 'excluded_resources')
+            )
         }
         #Add parameters for Microsoft365 instance
-        If($null -ne (Get-Variable -Name Instance -ErrorAction Ignore) -and $Instance -eq 'Microsoft365'){
-            #Create the -SpoSites string parameter
-            $attributeCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
-            # define a new parameter attribute
-            $rg_attr_name = New-Object System.Management.Automation.ParameterAttribute
-            $rg_attr_name.Mandatory = $false
-            $attributeCollection.Add($rg_attr_name)
-            $rg_pname = 'SpoSites'
-            $rg_type_dynParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter($rg_pname,
-            [string[]], $attributeCollection)
-            $paramDictionary.Add($rg_pname, $rg_type_dynParam)
+        If($PSBoundParameters.ContainsKey('Instance') -and $PSBoundParameters['Instance'] -eq 'Microsoft365'){
+            $paramDictionary.Add(
+                'SpoSites',
+                (New-DynamicParameter `
+                    -Name 'SpoSites' `
+                    -Type ([string[]]) `
+                    -Alias 'spo_sites'
+                )
+            )
             #Add PowerBI/Fabric ClientId parameter attribute
-            $clientIdAttr = New-Object System.Management.Automation.ParameterAttribute
-            $clientIdAttr.Mandatory = $false
-            $clientIdAttrCollection = New-Object -Type System.Collections.ObjectModel.Collection[System.Attribute]
-            $clientIdAttrCollection.Add($clientIdAttr)
-            $clientIdParam = New-Object System.Management.Automation.RuntimeDefinedParameter('PowerBIClientId', [System.String], $clientIdAttrCollection)
-            $paramDictionary.Add('PowerBIClientId', $clientIdParam)
+            $paramDictionary.Add(
+                'PowerBIClientId',
+                (New-DynamicParameter `
+                    -Name 'PowerBIClientId' `
+                    -Type ([string]) `
+                    -Alias 'powerbi_client_id'
+                )
+            )
             #Add PowerBI/Fabric Client Secret parameter attribute
-            $clientSecretAttr = New-Object System.Management.Automation.ParameterAttribute
-            $clientSecretAttr.Mandatory = $false
-            $clientSecretAttrCollection = New-Object -Type System.Collections.ObjectModel.Collection[System.Attribute]
-            $clientSecretAttrCollection.Add($clientSecretAttr)
-            $clientSecretParam = New-Object System.Management.Automation.RuntimeDefinedParameter('PowerBIClientSecret', [System.Security.SecureString], $clientSecretAttrCollection)
-            $paramDictionary.Add('PowerBIClientSecret', $clientSecretParam)
+            $paramDictionary.Add(
+                'PowerBIClientSecret',
+                (New-DynamicParameter `
+                    -Name 'PowerBIClientSecret' `
+                    -Type ([System.Security.SecureString]) `
+                    -Alias 'powerbi_client_secret'
+                )
+            )
             #Add PowerBI/Fabric PSCredential parameter attribute
-            $pscredAttr = New-Object System.Management.Automation.ParameterAttribute
-            $pscredAttr.Mandatory = $false
-            $pscredAttrCollection = New-Object -Type System.Collections.ObjectModel.Collection[System.Attribute]
-            $pscredAttrCollection.Add($pscredAttr)
-            $pscredParam = New-Object System.Management.Automation.RuntimeDefinedParameter('PowerBIClientCredentials', [System.Management.Automation.PSCredential], $pscredAttrCollection)
-            $paramDictionary.Add('PowerBIClientCredentials', $pscredParam)
+            $paramDictionary.Add(
+                'PowerBIClientCredentials',
+                (New-DynamicParameter `
+                    -Name 'PowerBIClientCredentials' `
+                    -Type ([System.Management.Automation.PSCredential]) `
+                    -Alias 'powerbi_client_credential'
+                )
+            )
             #Add PowerBI/Fabric Certificate parameter attribute
-            $certFileAttr = New-Object System.Management.Automation.ParameterAttribute
-            $certFileAttr.Mandatory = $false
-            $certFileAttrCollection = New-Object -Type System.Collections.ObjectModel.Collection[System.Attribute]
-            $certFileAttrCollection.Add($certFileAttr)
-            $validateScriptAttr = New-Object System.Management.Automation.ValidateScriptAttribute({ Test-Path -Path $_ -PathType Leaf })
-            $certFileAttrCollection.Add($validateScriptAttr)
-            $certFileParam = New-Object System.Management.Automation.RuntimeDefinedParameter('PowerBICertificateFile', [System.IO.FileInfo], $certFileAttrCollection)
-            $paramDictionary.Add('PowerBICertificateFile', $certFileParam)
+            $paramDictionary.Add(
+                'PowerBICertificateFile',
+                (New-DynamicParameter `
+                    -Name 'PowerBICertificateFile' `
+                    -Type ([System.IO.FileInfo]) `
+                    -Alias 'powerbi_certificate_file'
+                )
+            )
             #Add PowerBI/Fabric Certificate password parameter attribute
-            $certPassAttr = New-Object System.Management.Automation.ParameterAttribute
-            $certPassAttr.Mandatory = $false
-            $certPassAttrCollection = New-Object -Type System.Collections.ObjectModel.Collection[System.Attribute]
-            $certPassAttrCollection.Add($certPassAttr)
-            $passParam = New-Object System.Management.Automation.RuntimeDefinedParameter('PowerBICertificatePassword', [System.Security.SecureString], $certPassAttrCollection)
-            $paramDictionary.Add('PowerBICertificatePassword', $passParam)
+            $paramDictionary.Add(
+                'PowerBICertificatePassword',
+                (New-DynamicParameter `
+                    -Name 'PowerBICertificatePassword' `
+                    -Type ([System.Security.SecureString]) `
+                    -Alias 'powerbi_certificate_password'
+                )
+            )
         }
         # return the collection of dynamic parameters
         $paramDictionary
@@ -453,6 +441,14 @@ Function Invoke-Monkey365{
     Begin{
         #Set Window name
         $Host.UI.RawUI.WindowTitle = "Monkey365 Cloud Security Scanner"
+        #Import MSAL module
+        $MSAL = Join-Path $Script:ScriptPath 'core/modules/monkeymsal'
+        If (-not (Get-Module -Name monkeymsal)) {
+            Import-Module $MSAL -ArgumentList $PSBoundParameters['ForceMsalDesktop']
+        }
+        #Import Cloud Utils module
+        $cloudUtils = Join-Path $Script:ScriptPath 'core/modules/monkeycloudutils/monkeycloudutils.psd1'
+        Import-Module -Name $cloudUtils
         #Start Time
         $starttimer = Get-Date
         #####Get Default parameters ########
@@ -462,8 +458,6 @@ Function Invoke-Monkey365{
         #Set timer
         $O365Object.startDate = $starttimer
         Update-PsObject
-        #Initialize Logger
-        Initialize-MonkeyLogger
         #Check if import job
         If($PSBoundParameters.ContainsKey('ImportJob') -and $PSBoundParameters.ImportJob){
             Import-MonkeyJob
@@ -582,19 +576,10 @@ Function Invoke-Monkey365{
             }
             return
         }
+        #Initialize Logger
+        Initialize-MonkeyLogger
         #Check for mandatory params
         Test-MandatoryParameter
-        #Import MSAL module
-        $msg = @{
-            MessageData = "Importing MSAL authentication library";
-            callStack = (Get-PSCallStack | Select-Object -First 1);
-            logLevel = 'info';
-            InformationAction = $O365Object.InformationAction;
-            Tags = @('Monkey365LoadMSAL');
-        }
-        Write-Information @msg
-        $MSAL = ("{0}{1}core/modules/monkeymsal" -f $O365Object.Localpath,[System.IO.Path]::DirectorySeparatorChar)
-        Import-Module $MSAL -Force -ArgumentList $O365Object.forceMSALDesktop -Scope Global
         ################### End Validate parameters #####################
         #Initialize authentication parameters
         Initialize-AuthenticationParam
