@@ -9,7 +9,7 @@ Function Import-MarkDigLibrary{
     $MarkDigPath = ("{0}/lib" -f $PSScriptRoot)
     ## Select the correct assemblies
     if ($PSEdition -eq 'Desktop'){
-        $files = [System.IO.Directory]::EnumerateFiles(("{0}/net461" -f $MarkDigPath), "*.dll","AllDirectories")
+        $files = [System.IO.Directory]::EnumerateFiles(("{0}/netstandard2.0" -f $MarkDigPath), "*.dll","AllDirectories")
         if($null -ne $files){
             foreach ($file in $files) {
                 $Assemblies.Add($file)
@@ -41,21 +41,33 @@ Function Import-MarkDigLibrary{
 $isInstalled = Import-MarkDigLibrary
 
 if($isInstalled){
-    $listofFiles = [System.IO.Directory]::EnumerateFiles(("{0}" -f $PSScriptRoot),"*.ps1","AllDirectories")
-    $all_files = $listofFiles.Where({($_ -like "*public*") -or ($_ -like "*private*")})
-    $content = $all_files.ForEach({
-        [System.IO.File]::ReadAllText($_, [Text.Encoding]::UTF8) + [Environment]::NewLine
-    })
-
-    #Set-Content -Path $tmpFile -Value $content
-    . ([scriptblock]::Create($content))
-
+    #Get public functions
+    $PublicFolder = Join-Path -Path $PSScriptRoot -ChildPath "public"
+    $publicFunctions = (Get-ChildItem -Path $PublicFolder -Filter *.ps1 -File).BaseName
+    # Import localized data
     $LocalizedDataParams = @{
         BindingVariable = 'messages';
-        BaseDirectory = "{0}/{1}" -f $PSScriptRoot, "Localized";
+        BaseDirectory = (Join-Path $PSScriptRoot 'Localized');
     }
     #Import localized data
     Import-LocalizedData @LocalizedDataParams;
+    #Import public and private files
+    $sourceFolders = @('private', 'public')
+    ForEach ($folder in $sourceFolders) {
+        $path = Join-Path $PSScriptRoot $folder
+        If (-not (Test-Path $path)) {
+            continue
+        }
+        $files = [System.IO.Directory]::EnumerateFiles($path,'*',[System.IO.SearchOption]::AllDirectories)
+        ForEach ($file in ($files | Sort-Object)) {
+            If ([System.IO.Path]::GetExtension($file) -ne '.ps1') {
+                continue
+            }
+            . $file
+        }
+    }
+    #Export module members
+    Export-ModuleMember -Function $publicFunctions
 }
 else{
     Write-Warning "Unable to load psmarkdig module"
