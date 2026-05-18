@@ -3,7 +3,7 @@ param(
 )
 Set-StrictMode -Version Latest
 
-if ($PSVersionTable.PSVersion.Major -lt 6.0) {
+If ($PSVersionTable.PSVersion.Major -lt 6.0) {
     switch ($([System.Environment]::OSVersion.Platform)) {
         'Win32NT' {
             New-Variable -Option Constant -Name IsWindows -Value $True -ErrorAction SilentlyContinue
