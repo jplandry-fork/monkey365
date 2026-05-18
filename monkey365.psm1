@@ -111,7 +111,6 @@ $sourceFiles = @(
     'core/api/entraid/msgraph/helpers/users/Get-MonkeyMSGraphUser.ps1'
     'core/api/entraid/msgraph/helpers/groups/Get-MonkeyMSGraphGroup.ps1'
     'core/api/entraid/msgraph/helpers/groups/Get-MonkeyMSGraphGroupTransitiveMember.ps1'
-    'core/api/entraid/msgraph/helpers/serviceprincipals/Get-MonkeyMSGraphServicePrincipal.ps1'
     'core/api/entraid/msgraph/helpers/directoryrole/Get-MonkeyMSGraphEntraDirectoryRole.ps1'
     'core/api/entraid/msgraph/helpers/directoryrole/Get-MonkeyMSGraphEntraRoleAssignment.ps1'
     'core/api/entraid/msgraph/helpers/directoryrole/Get-MonkeyMSGraphObjectDirectoryRole.ps1'
