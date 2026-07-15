@@ -115,8 +115,11 @@ Function Register-Monkey365Application {
         $requiredResourceAccessList = [System.Collections.Generic.List[System.Collections.Hashtable]]::new()
         #Set list for role assignments
         $requiredRoleList = [System.Collections.Generic.List[System.String]]::new();
-        $MSAL = ("{0}{1}core/modules/monkeymsal" -f $O365Object.Localpath,[System.IO.Path]::DirectorySeparatorChar)
-        Import-Module $MSAL -Scope Global -Force
+        #Import MSAL module
+        $MSAL = Join-Path $O365Object.Localpath '/core/modules/monkeymsal/monkeymsal.psd1'
+        If (-not (Get-Module -Name monkeymsal)) {
+            Import-Module $MSAL
+        }
         $msalAppMetadata = New-Object -TypeName "System.Management.Automation.CommandMetaData" (Get-Command -Name "New-MonkeyMsalApplication")
         #Set new dict
         $newPsboundParams = [ordered]@{}

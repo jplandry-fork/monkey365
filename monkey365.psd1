@@ -69,7 +69,7 @@ RequiredModules = @()
 NestedModules = @(
     'core/modules/monkeyutils/monkeyutils.psm1'
     'core/modules/monkeylogger/monkeylogger.psm1'
-    #'core/modules/monkeycloudutils/monkeycloudutils.psm1'
+    'core/modules/monkeycloudutils/monkeycloudutils.psm1'
     'core/modules/monkeyhttpwebrequest/monkeyhttpwebrequest.psm1'
     'core/modules/psmarkdig/psmarkdig.psm1'
     'core/modules/monkeyhtml/monkeyhtml.psm1'

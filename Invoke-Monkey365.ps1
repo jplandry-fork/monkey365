@@ -446,9 +446,6 @@ Function Invoke-Monkey365{
         If (-not (Get-Module -Name monkeymsal)) {
             Import-Module $MSAL -ArgumentList $PSBoundParameters['ForceMsalDesktop']
         }
-        #Import Cloud Utils module
-        $cloudUtils = Join-Path $Script:ScriptPath 'core/modules/monkeycloudutils/monkeycloudutils.psd1'
-        Import-Module -Name $cloudUtils
         #Start Time
         $starttimer = Get-Date
         #####Get Default parameters ########
