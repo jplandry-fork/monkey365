@@ -76,7 +76,6 @@ Function Get-MonkeyAzurePlugins {
     If (-not $script:azure_plugins) {
         $script:azure_plugins = Get-MonkeySupportedService -Azure
     }
-    Write-Host ($script:azure_plugins | Out-String)
     return $script:azure_plugins
 }
 
