@@ -73,7 +73,11 @@ Function Register-Monkey365Application {
 
         # Certificate years valid
         [Parameter(Mandatory = $false, HelpMessage = 'Certificate years')]
-        [System.Int32]$CertYearsValid = 2
+        [System.Int32]$CertYearsValid = 2,
+
+        # Minimum Key Length
+        [Parameter(Mandatory = $false, HelpMessage = 'Minimum key length required')]
+        [System.Int32]$KeyLength = 2048
     )
     Begin{
         $Verbose = $False;
@@ -115,11 +119,8 @@ Function Register-Monkey365Application {
         $requiredResourceAccessList = [System.Collections.Generic.List[System.Collections.Hashtable]]::new()
         #Set list for role assignments
         $requiredRoleList = [System.Collections.Generic.List[System.String]]::new();
-        #Import MSAL module
-        $MSAL = Join-Path $O365Object.Localpath '/core/modules/monkeymsal/monkeymsal.psd1'
-        If (-not (Get-Module -Name monkeymsal)) {
-            Import-Module $MSAL
-        }
+        $MSAL = ("{0}{1}core/modules/monkeymsal" -f $O365Object.Localpath,[System.IO.Path]::DirectorySeparatorChar)
+        Import-Module $MSAL -Scope Global -Force
         $msalAppMetadata = New-Object -TypeName "System.Management.Automation.CommandMetaData" (Get-Command -Name "New-MonkeyMsalApplication")
         #Set new dict
         $newPsboundParams = [ordered]@{}
@@ -225,30 +226,35 @@ Function Register-Monkey365Application {
         }
         Else{
             Try{
-                #Get temp path
-                $_path = [System.IO.Path]::GetTempPath()
-                # Generate a new RSA key pair
-                $rsa = [System.Security.Cryptography.RSA]::Create();
-                $request = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
-                    "CN=monkey365",
-                    $rsa,
-                    [System.Security.Cryptography.HashAlgorithmName]::SHA256,
-                    [System.Security.Cryptography.RSASignaturePadding]::Pkcs1
-                );
-                $certFile = $request.CreateSelfSigned([System.DateTimeOffset]::UtcNow, [System.DateTimeOffset]::UtcNow.AddYears($CertYearsValid));
-                $certFileFullPath = ("{0}{1}monkey.cer" -f $_path,[System.IO.Path]::DirectorySeparatorChar)
-                $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-                [System.IO.File]::WriteAllBytes($certFileFullPath,$bytes)
-                Write-Host ("New CRT certificate created {0}" -f $certFileFullPath) -ForegroundColor Green
-                If($PSBoundParameters.ContainsKey('CertFilePassword') -and $PSBoundParameters['CertFilePassword']){
-                    $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $PSBoundParameters['CertFilePassword']);
+                IF($KeyLength -ge 2048){
+                    #Get temp path
+                    $_path = [System.IO.Path]::GetTempPath()
+                    # Generate a new RSA key pair
+                    $rsa = [System.Security.Cryptography.RSA]::Create($KeyLength);
+                    $request = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
+                        "CN=monkey365",
+                        $rsa,
+                        [System.Security.Cryptography.HashAlgorithmName]::SHA256,
+                        [System.Security.Cryptography.RSASignaturePadding]::Pkcs1
+                    );
+                    $certFile = $request.CreateSelfSigned([System.DateTimeOffset]::UtcNow, [System.DateTimeOffset]::UtcNow.AddYears($CertYearsValid));
+                    $certFileFullPath = ("{0}{1}monkey.cer" -f $_path,[System.IO.Path]::DirectorySeparatorChar)
+                    $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
+                    [System.IO.File]::WriteAllBytes($certFileFullPath,$bytes)
+                    Write-Host ("New CRT certificate created {0}" -f $certFileFullPath) -ForegroundColor Green
+                    If($PSBoundParameters.ContainsKey('CertFilePassword') -and $PSBoundParameters['CertFilePassword']){
+                        $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $PSBoundParameters['CertFilePassword']);
+                    }
+                    Else{
+                        $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx);
+                    }
+                    $pfxFullPath = ("{0}{1}monkey.pfx" -f $_path,[System.IO.Path]::DirectorySeparatorChar)
+                    [System.IO.File]::WriteAllBytes($pfxFullPath,$bytes)
+                    Write-Host ("New PFX certificate created {0}" -f $pfxFullPath) -ForegroundColor Green
                 }
                 Else{
-                    $bytes = $certFile.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx);
+                    Write-Warning ("Unable to generate certificate request. RSA key size {0} is less than the minimum required 2048 bits" -f $KeyLength)
                 }
-                $pfxFullPath = ("{0}{1}monkey.pfx" -f $_path,[System.IO.Path]::DirectorySeparatorChar)
-                [System.IO.File]::WriteAllBytes($pfxFullPath,$bytes)
-                Write-Host ("New PFX certificate created {0}" -f $pfxFullPath) -ForegroundColor Green
             }
             Catch{
                 throw ("[MonkeyApplicationError] {0}: {1}" -f "Unable to register Monkey365 application",$_.Exception.Message)
