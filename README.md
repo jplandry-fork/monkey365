@@ -203,9 +203,7 @@ Currently supported standards include:
 - CIS Microsoft Azure Foundations Benchmark v3.0.0
 - CIS Microsoft Azure Database Services Benchmark v2.0.0
 - CIS Microsoft Azure Compute Services Benchmark v2.0.0
-- CIS Microsoft 365 Foundations Benchmark v3.0.0
-- CIS Microsoft 365 Foundations Benchmark v4.0.0
-- CIS Microsoft 365 Foundations Benchmark v5.0.0
+- CIS Microsoft 365 Foundations Benchmark v7.0.0
 
 Additional standards and frameworks may be added in future releases, including:
 
