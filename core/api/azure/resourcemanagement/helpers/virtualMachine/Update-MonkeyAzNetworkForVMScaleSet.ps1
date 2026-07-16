@@ -35,9 +35,8 @@ Function Update-MonkeyAzNetworkForVMScaleSet {
         .LINK
             https://github.com/silverhack/monkey365
     #>
-
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope="Function")]
 	[CmdletBinding()]
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "", Scope="Function")]
 	Param (
         [Parameter(Mandatory=$True, ValueFromPipeline = $True)]
         [Object]$InputObject
@@ -64,7 +63,6 @@ Function Update-MonkeyAzNetworkForVMScaleSet {
                 $ipConfigurations = $ifaceConf.GetPropertyByPath('properties.ipConfigurations')
                 ForEach($ipConf in @($ipConfigurations)){
                     $subnetId = $ipConf.GetPropertyByPath('properties.subnet.id');
-                    $vnetworkId = $null
                     If($subnetId){
                         $subnet = $subnetId | Get-MonkeyAzSubnetById
                         If($subnet){

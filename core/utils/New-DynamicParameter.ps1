@@ -13,21 +13,43 @@
 # limitations under the License.
 
 Function New-DynamicParameter {
-    param(
+    <#
+        .SYNOPSIS
+        Create a new dynamic parameter for a PowerShell function.
+        .DESCRIPTION
+        This function allows you to create a new dynamic parameter that can be added to a PowerShell function at runtime.
+        .INPUTS
+
+        .OUTPUTS
+
+        .EXAMPLE
+
+        .NOTES
+	        Author		: Juan Garrido
+            Twitter		: @tr1ana
+            File Name	: New-DynamicParameter
+            Version     : 1.0
+
+        .LINK
+            https://github.com/silverhack/monkey365
+    #>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope="Function")]
+    [CmdletBinding()]
+    Param(
         [Parameter(Mandatory = $true, HelpMessage= "Name")]
-        [string] $Name,
+        [System.String] $Name,
 
         [Parameter(Mandatory = $true, HelpMessage= "Type")]
-        [type] $Type,
+        [System.Type] $Type,
 
         [Parameter(Mandatory = $false, HelpMessage= "Alias")]
-        [string[]] $Alias,
+        [System.String[]] $Alias,
 
         [Parameter(Mandatory = $false, HelpMessage= "Validate")]
-        [string[]] $ValidateSet,
+        [System.String[]] $ValidateSet,
 
         [Parameter(Mandatory = $false, HelpMessage= "Validate Script")]
-        [scriptblock] $ValidateScript
+        [System.Management.Automation.ScriptBlock] $ValidateScript
     )
 
     $attributes = [System.Collections.ObjectModel.Collection[System.Attribute]]::new()

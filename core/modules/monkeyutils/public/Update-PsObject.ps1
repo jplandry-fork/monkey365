@@ -99,7 +99,6 @@ Function Update-PsObject{
                   else {
                     $obj
                   }
-                  
               } -Force -ErrorAction SilentlyContinue
           }
       }

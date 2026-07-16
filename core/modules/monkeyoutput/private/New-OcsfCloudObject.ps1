@@ -33,8 +33,8 @@ Function New-OcsfCloudObject{
         .LINK
             https://github.com/silverhack/monkey365
     #>
-    [CmdletBinding()]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseShouldProcessForStateChangingFunctions", "", Scope="Function")]
+    [CmdletBinding()]
     [OutputType([System.Management.Automation.PSCustomObject])]
 	param()
     Process{
