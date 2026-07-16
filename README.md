@@ -231,8 +231,8 @@ https://silverhack.github.io/monkey365/
 
 <a href="https://www.star-history.com/?repos=silverhack%2Fmonkey365&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left&sealed_token=AMLq3w8HQ4zphU_FsNWXLYVt_8wZLFcQRolk9Y8T2hdTMDCUuDjv0-jXyw48xcblVOdJGcMBN341fLnzAygwsphuit2XXFd67DimfcwDlCLzG0f_UOKbLpZEft0LJq3l0fTEgBtDApz591EZFngaot_5_R2TcX8dBSTtSUgMtStBEBYZPpfSZRR7VX4X" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=AMLq3w8HQ4zphU_FsNWXLYVt_8wZLFcQRolk9Y8T2hdTMDCUuDjv0-jXyw48xcblVOdJGcMBN341fLnzAygwsphuit2XXFd67DimfcwDlCLzG0f_UOKbLpZEft0LJq3l0fTEgBtDApz591EZFngaot_5_R2TcX8dBSTtSUgMtStBEBYZPpfSZRR7VX4X" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=AMLq3w8HQ4zphU_FsNWXLYVt_8wZLFcQRolk9Y8T2hdTMDCUuDjv0-jXyw48xcblVOdJGcMBN341fLnzAygwsphuit2XXFd67DimfcwDlCLzG0f_UOKbLpZEft0LJq3l0fTEgBtDApz591EZFngaot_5_R2TcX8dBSTtSUgMtStBEBYZPpfSZRR7VX4X" />
  </picture>
 </a>
