@@ -229,10 +229,10 @@ https://silverhack.github.io/monkey365/
 
 # Star History
 
-<a href="https://www.star-history.com/#silverhack/monkey365&type=date&legend=top-left">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=silverhack/monkey365&type=date&legend=top-left" />
-  </picture>
+<a href="https://www.star-history.com/?repos=silverhack%2Fmonkey365&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&theme=dark&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=silverhack/monkey365&type=date&legend=top-left&sealed_token=3LeG66tuSz_hSz6FgEvx9WtEVoYyMkXRRhPuuwdBIT_1O7wUIMTTkOUf_FdKE309TIsodAEhxWkUofEc-c-RLqWV-rdUX-XJsSji-Dd-xA3p5xnKdWxGP5y-GHojoC3lWdl6FKn0YrmTsHq_hxeMhDoX50CVh56jZe4xnES7B4TM5Olxbr4mrTxvp5fu" />
+ </picture>
 </a>

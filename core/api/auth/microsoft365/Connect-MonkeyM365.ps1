@@ -251,7 +251,7 @@ Function Connect-MonkeyM365{
                 $initialDomain = $null;
                 #Get config
                 [bool]$scanSites = $false
-                [void][System.Boolean]::TryParse($O365Object.internal_config.o365.SharePointOnline.scanAllSites.ToString(),[ref]$scanSites)
+                [void][System.Boolean]::TryParse($O365Object.internal_config.o365.SharePointOnline.sitePermissionsOptions.scanAllSites.ToString(),[ref]$scanSites)
                 If($O365Object.AuthType.ToLower() -eq 'client_credentials'){
                     $msg = @{
                         MessageData = ($message.SPSConfidentialAppErrorMessage);
