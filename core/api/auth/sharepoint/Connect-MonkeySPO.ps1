@@ -96,8 +96,8 @@ Function Connect-MonkeySPO {
     }
     if($O365Object.isConfidentialApp -eq $false){
         #Check if application is present
-        If(($O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService SharePointOnline)})).Count -gt 0){
-            $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService SharePointOnline)}) | Select-Object -First 1
+        If(($O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService SharePointOnline)})).Count -gt 0){
+            $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService SharePointOnline)}) | Select-Object -First 1
         }
         Else{
             #Potentially first time the user is authenticating, so we use original parameters
@@ -126,6 +126,7 @@ Function Connect-MonkeySPO {
             try{
                 $spo_app = New-MsalApplicationForSPO @p
                 #Validate .net core conflicts
+                <#
                 if($spo_app.AppConfig.RedirectUri -match "localhost" -and $O365Object.SystemInfo.MsalType -eq "Core"){
                     $dc = $new_params.Item('DeviceCode');
                     if($null -eq $dc -or $dc -eq $false){
@@ -140,6 +141,7 @@ Function Connect-MonkeySPO {
                         return
                     }
                 }
+                #>
             }
             Catch{
                 Write-Error $_

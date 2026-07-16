@@ -75,12 +75,80 @@ Function Connect-MonkeyGenericApplication {
                 }
             }
             #Check if application is present
-            ElseIf(($O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))})).Count -gt 0){
-                $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))}) | Select-Object -First 1
-                #Add silent
-                if(-NOT $new_params.ContainsKey('Silent')){
-                    #Add silent auth
-                    [ref]$null = $new_params.Add('Silent',$true)
+            ElseIf(($O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))})).Count -gt 0){
+                If($RedirectUri){
+                    $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService)) -and $_.AppConfig.RedirectUri -eq $RedirectUri}) | Select-Object -First 1                    
+                    If($null -ne $new_params.publicApp){
+                        #Add silent
+                        If(-NOT $new_params.ContainsKey('Silent')){
+                            #Add silent auth
+                            [ref]$null = $new_params.Add('Silent',$true)
+                        }
+                    }
+                    Else{
+                        #Potentially first time the user is authenticating, so we use original parameters
+                        #Set new params
+                        $new_params = @{}
+                        ForEach ($param in $O365Object.msalAuthArgs.GetEnumerator()){
+                            $new_params.add($param.Key, $param.Value)
+                        }
+                        #Set new params for application
+                        $client_app = @{}
+                        ForEach ($param in $O365Object.application_args.GetEnumerator()){
+                            $client_app.add($param.Key, $param.Value)
+                        }
+                        #Add redirectUri
+                        If($client_app.ContainsKey('RedirectUri')){
+                            $client_app.RedirectUri = $PSBoundParameters['RedirectUri']
+                        }
+                        Else{
+                            $client_app.add('RedirectUri', $PSBoundParameters['RedirectUri'])
+                        }
+                        #Get ClientId from Microsoft Graph
+                        $clientId = Get-WellKnownAzureService -AzureService $AzureService
+                        If($clientId){
+                            #Add to param
+                            [void]$client_app.add('ClientId', $clientId)
+                            #Get application
+                            $publicApp = New-MonkeyMsalApplication @client_app
+                            if($publicApp){
+                                #Add public app to param
+                                $new_params.publicApp = $publicApp
+                                #Add to Object
+                                [void]$O365Object.msal_public_applications.Add($publicApp)
+                            }
+                            Else{
+                                $msg = @{
+                                    MessageData = ("Unable to get MSAL application for {0}" -f $clientId);
+                                    callStack = (Get-PSCallStack | Select-Object -First 1);
+                                    logLevel = 'Warning';
+                                    InformationAction = $O365Object.InformationAction;
+                                    Tags = @('MonkeyGenericApplicationError');
+                                }
+                                Write-Warning @msg
+                                return
+                            }
+                        }
+                        Else{
+                            $msg = @{
+                                MessageData = "ClientId was not found";
+                                callStack = (Get-PSCallStack | Select-Object -First 1);
+                                logLevel = 'Warning';
+                                InformationAction = $O365Object.InformationAction;
+                                Tags = @('MonkeyGenericApplicationClientIdError');
+                            }
+                            Write-Warning @msg
+                            return
+                        }
+                    }
+                }
+                Else{
+                    $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))}) | Select-Object -First 1
+                    #Add silent
+                    if(-NOT $new_params.ContainsKey('Silent')){
+                        #Add silent auth
+                        [ref]$null = $new_params.Add('Silent',$true)
+                    }
                 }
             }
             Else{
@@ -106,7 +174,7 @@ Function Connect-MonkeyGenericApplication {
                 }
                 #Get ClientId from Microsoft Graph
                 $clientId = Get-WellKnownAzureService -AzureService $AzureService
-                if($clientId){
+                If($clientId){
                     #Add to param
                     [void]$client_app.add('ClientId', $clientId)
                     #Get application
@@ -184,7 +252,7 @@ Function Connect-MonkeyGenericApplication {
         If(($PSBoundParameters.ContainsKey('RedirectUri') -and $PSBoundParameters['RedirectUri'])){
             if($O365Object.isConfidentialApp -eq $false){
                 #Get app
-                $app = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))}) | Select-Object -First 1
+                $app = $O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ("{0}" -f $AzureService))}) | Select-Object -First 1
                 if($app){
                     #Remove Redirect Uri
                     $app.RedirectUri = $null;

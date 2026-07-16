@@ -44,8 +44,8 @@ Function Get-TokenForEXO {
         #Check if confidential App
         if($O365Object.isConfidentialApp -eq $false){
             #Check if application is present
-            if(($O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService ExchangeOnlineV2)})).Count -gt 0){
-                $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService ExchangeOnlineV2)}) | Select-Object -First 1
+            if(($O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ExchangeOnlineV2)})).Count -gt 0){
+                $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService ExchangeOnlineV2)}) | Select-Object -First 1
             }
             else{
                 #Potentially first time the user is authenticating, so we use original parameters

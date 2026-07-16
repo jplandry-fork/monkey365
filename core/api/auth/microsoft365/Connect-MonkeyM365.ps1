@@ -94,7 +94,7 @@ Function Connect-MonkeyM365{
     If($null -ne $O365Object.auth_tokens.MSGraph){
         #Get scopes
         $scopes = Read-JWTtoken -token $O365Object.auth_tokens.MSGraph.AccessToken | Select-Object -ExpandProperty scp -ErrorAction Ignore
-        If($scopes -match '^OrgSettings-Forms\.Read(?:Write)?\.All$'){
+        If($scopes -match 'OrgSettings-Forms\.Read(?:Write)?\.All'){
             $O365Object.onlineServices.Item("Forms") = $true
         }
         Else{
@@ -251,7 +251,7 @@ Function Connect-MonkeyM365{
                 $initialDomain = $null;
                 #Get config
                 [bool]$scanSites = $false
-                [void][System.Boolean]::TryParse($O365Object.internal_config.o365.SharePointOnline.sitePermissionsOptions.scanAllSites.ToString(),[ref]$scanSites)
+                [void][System.Boolean]::TryParse($O365Object.internal_config.o365.SharePointOnline.scanAllSites.ToString(),[ref]$scanSites)
                 If($O365Object.AuthType.ToLower() -eq 'client_credentials'){
                     $msg = @{
                         MessageData = ($message.SPSConfidentialAppErrorMessage);
@@ -473,7 +473,7 @@ Function Connect-MonkeyM365{
                 #Connect to Fabric
                 If($O365Object.isConfidentialApp){
                     If($O365Object.initParams.GetEnumerator().Where({$_.Key -eq 'PowerBIClientId'}).Count -gt 0){
-                        $application = $O365Object.msal_confidential_applications.Where({$_.ClientId -eq $O365Object.initParams.Item('PowerBIClientId')}) | Select-Object -First 1 -ErrorAction Ignore
+                        $application = $O365Object.msal_confidential_applications.Where({$_.AppConfig.ClientId -eq $O365Object.initParams.Item('PowerBIClientId')}) | Select-Object -First 1 -ErrorAction Ignore
                         If($application){
                             $p = @{
                                 Resource = $O365Object.Environment.Fabric;
@@ -546,7 +546,7 @@ Function Connect-MonkeyM365{
                 Write-Information @msg
                 If($O365Object.isConfidentialApp){
                     If($O365Object.initParams.GetEnumerator().Where({$_.Key -eq 'PowerBIClientId'}).Count -gt 0){
-                        $application = $O365Object.msal_confidential_applications.Where({$_.ClientId -eq $O365Object.initParams.Item('PowerBIClientId')}) | Select-Object -First 1 -ErrorAction Ignore
+                        $application = $O365Object.msal_confidential_applications.Where({$_.AppConfig.ClientId -eq $O365Object.initParams.Item('PowerBIClientId')}) | Select-Object -First 1 -ErrorAction Ignore
                         If($application){
                             $p = @{
                                 Resource = $O365Object.Environment.PowerBI;

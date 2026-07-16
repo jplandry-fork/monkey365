@@ -52,8 +52,8 @@ Function Connect-MonkeyMSGraph {
         }
         if($useMgGraph -and $scopes){
             #Check if application is present
-            if(($O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService MicrosoftGraph)})).Count -gt 0){
-                $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService MicrosoftGraph)}) | Select-Object -First 1
+            if(($O365Object.msal_public_applications.Where({$null -ne $_ -and $_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService AzureCli)})).Count -gt 0){
+                $new_params.publicApp = $O365Object.msal_public_applications.Where({$null -ne $_ -and $_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService AzureCli)}) | Select-Object -First 1
             }
             Else{
                 #Potentially first time the user is authenticating, so we use original parameters
@@ -96,8 +96,8 @@ Function Connect-MonkeyMSGraph {
         }
         Else{
             #Check if application is present
-            if(($O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService AzurePowershell)})).Count -gt 0){
-                $new_params.publicApp = $O365Object.msal_public_applications.Where({$_.ClientId -eq (Get-WellKnownAzureService -AzureService AzurePowershell)}) | Select-Object -First 1
+            if(($O365Object.msal_public_applications.Where({$null -ne $_ -and $_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService AzureCli)})).Count -gt 0){
+                $new_params.publicApp = $O365Object.msal_public_applications.Where({$null -ne $_ -and $_.AppConfig.ClientId -eq (Get-WellKnownAzureService -AzureService AzureCli)}) | Select-Object -First 1
             }
             Else{
                 #Potentially first time the user is authenticating, so we use original parameters
