@@ -3,32 +3,10 @@ Function Get-OsInfo {
     [OutputType([System.Management.Automation.PSObject])]
     param ()
     Begin{
-        #Set null
-        $files = $null;
-        #Get RootPath
-        $rootPath = ( Split-Path -Path $PSCmdlet.MyInvocation.PSCommandPath -Parent)
-        #Get Files
-        If ($PSVersionTable.PSEdition -eq 'Desktop'){
-            $MsalLibPath = ("{0}/lib/desktop" -f $rootPath)
-            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
-        }
-        Elseif (($PSVersionTable.PSEdition -eq 'Core') -and ($PSVersionTable.Platform -eq 'Unix')){
-            $MsalLibPath = ("{0}/lib/netcore" -f $rootPath)
-            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
-        }
-        Elseif (($PSVersionTable.PSEdition -eq 'Core') -and ($PSVersionTable.Platform -eq 'Win32NT')){
-            $MsalLibPath = ("{0}/lib/desktop" -f $rootPath)
-            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
-        }
-        Else{
-            Write-Warning -Message 'Unable to determine if OS is Windows or Linux. Loading MSAL Core'
-            $MsalLibPath = ("{0}/lib/netcore" -f $rootPath)
-            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
-        }
         #Set ScriptBlock
         $ScriptBlock = {
             try{
-                $files = $args[0]
+                $files = $args
                 $Assemblies = [System.Collections.Generic.List[string]]::new()
                 if($null -ne $files){
                     foreach ($file in $files) {
@@ -58,24 +36,44 @@ Function Get-OsInfo {
                 #return Obj
                 return $osObj
             }
-            catch{
+            Catch{
                 Write-Warning "Unable to get OS options from MSAL"
             }
         }
     }
     Process{
-        if($null -ne $files){
-            if($null -ne (Get-Command -Name PowerShell -ErrorAction Ignore)){
+        #Get RootPath
+        $rootPath = ( Split-Path -Path $PSCmdlet.MyInvocation.PSCommandPath -Parent)
+        #Get Files
+        If ($PSVersionTable.PSEdition -eq 'Desktop'){
+            $MsalLibPath = ("{0}/lib/desktop" -f $rootPath)
+            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
+        }
+        Elseif (($PSVersionTable.PSEdition -eq 'Core') -and ($PSVersionTable.Platform -eq 'Unix')){
+            $MsalLibPath = ("{0}/lib/netcore" -f $rootPath)
+            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
+        }
+        Elseif (($PSVersionTable.PSEdition -eq 'Core') -and ($PSVersionTable.Platform -eq 'Win32NT')){
+            $MsalLibPath = ("{0}/lib/desktop" -f $rootPath)
+            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
+        }
+        Else{
+            Write-Warning -Message 'Unable to determine if OS is Windows or Linux. Loading MSAL Core'
+            $MsalLibPath = ("{0}/lib/netcore" -f $rootPath)
+            $files = [System.IO.Directory]::EnumerateFiles($MsalLibPath,"*.dll","AllDirectories")
+        }
+        If($null -ne $files){
+            If($null -ne (Get-Command -Name PowerShell -ErrorAction Ignore)){
                 PowerShell -args @($files) -Command $ScriptBlock
             }
-            elseif($null -ne (Get-Command -Name pwsh -ErrorAction Ignore)){
+            ElseIf($null -ne (Get-Command -Name pwsh -ErrorAction Ignore)){
                 pwsh -args @($files) -Command $ScriptBlock
             }
-            else{
+            Else{
                 Write-Warning "PowerShell not installed"
             }
         }
-        else{
+        Else{
             throw ("Unable to load MSAL library")
         }
     }

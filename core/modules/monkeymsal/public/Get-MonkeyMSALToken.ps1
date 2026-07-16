@@ -332,7 +332,7 @@ Function Get-MonkeyMSALToken{
                         }
                         $cancelationToken.Dispose()
                     }
-                    if($token_result.IsFaulted){
+                    If($token_result.IsFaulted){
                         Write-Warning ($script:messages.AcquireTokenFailed -f $token_result.Exception.InnerException.message)
                         $ErrorCode = $token_result.Exception.InnerException | Select-Object -ExpandProperty ErrorCode -ErrorAction Ignore
                         Write-Verbose ($script:messages.AcquireTokenFailed -f $ErrorCode)
@@ -346,22 +346,22 @@ Function Get-MonkeyMSALToken{
                             return
                         }
                     }
-                    if($null -ne $token_result.Result){
+                    If($null -ne $token_result.Result){
                         #add elements to auth object
                         $new_token = $token_result.Result
                         $new_token | Add-Member -type NoteProperty -name AuthType -value $AuthType -Force
                         $new_token | Add-Member -type NoteProperty -name resource -value $Resource -Force
-                        $new_token | Add-Member -type NoteProperty -name clientId -value $application.ClientId -Force
+                        $new_token | Add-Member -type NoteProperty -name clientId -value $application.AppConfig.ClientId -Force
                         $new_token | Add-Member -type NoteProperty -name renewable -value $true -Force
                         #Add TenantId
-                        if($null -ne $new_token.psobject.properties.Item('TenantId') -and $null -eq $new_token.TenantId){
-                            if($TenantId){
+                        If($null -ne $new_token.psobject.properties.Item('TenantId') -and $null -eq $new_token.TenantId){
+                            If($TenantId){
                                 $tid = $TenantId
                             }
-                            elseif($application.AppConfig.TenantId){
+                            ElseIf($application.AppConfig.TenantId){
                                 $tid = $application.AppConfig.TenantId
                             }
-                            else{
+                            Else{
                                 $tid = $null
                             }
                             $new_token | Add-Member -type NoteProperty -name TenantId -value $tid -Force

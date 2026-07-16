@@ -127,7 +127,7 @@ $content = $all_files.ForEach({
 
 $osInfo = Get-OsInfo
 If($null -ne $osInfo){
-    if($osInfo.IsUserInteractive -eq $false){
+    If($osInfo.IsUserInteractive -eq $false){
         Write-Verbose ($script:messages.OSVersionMessage -f "Headless", "Core")
         $AssembliesExists = Get-CoreLib
         if($AssembliesExists){
@@ -137,7 +137,7 @@ If($null -ne $osInfo){
     ElseIf ($PSVersionTable.PSEdition -eq 'Desktop'){
         Write-Verbose ($script:messages.OSVersionMessage -f "Windows", "Desktop")
         $AssembliesExists = Get-DesktopLib
-        if($AssembliesExists){
+        If($AssembliesExists){
             Install-MsalLibrary
         }
     }
