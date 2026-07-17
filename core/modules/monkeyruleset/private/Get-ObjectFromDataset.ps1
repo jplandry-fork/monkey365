@@ -87,21 +87,30 @@ Function Get-ObjectFromDataset{
                                     $dataObjects = Get-ObjectPropertyByPath -InputObject $dataObjects -Property $subPath.Trim()
                                 }
                                 If($null -ne $selectCondition -and $selectCondition.PsObject.Properties.GetEnumerator().MoveNext()){
-                                    #Set null
-                                    $queryTxt = $null;
+                                    $finalquery = [System.Text.StringBuilder]::new()
                                     #Check if conditions or filter
                                     $_conditions = $selectCondition | Select-Object -ExpandProperty conditions -ErrorAction Ignore
                                     $_filter = $selectCondition | Select-Object -ExpandProperty filter -ErrorAction Ignore
                                     If($null -ne $_conditions){
-                                        $queryTxt = $selectCondition | Resolve-Filter
+                                        $newQuery = $selectCondition | Resolve-Filter
+                                        ForEach($q in @($newQuery)){
+                                            [void]$finalquery.Append((" {0}" -f $q));
+                                        }
                                     }
                                     ElseIf($null -ne $_filter){
-                                        $queryTxt = $selectCondition | ConvertTo-Query
+                                        $newQuery = $selectCondition | ConvertTo-Query
+                                        ForEach($q in @($newQuery)){
+                                            [void]$finalquery.Append((" {0}" -f $q));
+                                        }
                                     }
-                                    If($null -ne $queryTxt){
-                                        $query = $queryTxt | ConvertTo-SecureScriptBlock
-                                        If($null -ne $query){
-                                            $dataObjects = @($dataObjects).Where($query)
+                                    If($finalquery.Length -gt 0){
+                                        $safeQuery = $finalquery.ToString().Trim() | ConvertTo-SecureScriptBlock
+                                        If($null -ne $safeQuery){
+                                            $dataObjects = @($dataObjects).Where($safeQuery)
+                                        }
+                                        Else{
+                                            Write-Warning "Unable to convert Select Condigion statement"
+                                            return
                                         }
                                     }
                                 }

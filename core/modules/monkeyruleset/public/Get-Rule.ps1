@@ -164,10 +164,10 @@ Function Get-Rule{
                 else{
                     $mrules = @()
                     if($PSBoundParameters.ContainsKey('Instance') -and $PSBoundParameters['Instance']){
-                        $mrules += @($MyRules).Where({$_.File.FullName -notlike "*EntraID*" -and $_.File.FullName -like ("*{0}*" -f $PSBoundParameters['Instance'])})
+                        $mrules += @($MyRules).Where({$_.provider.ToLower() -eq $PSBoundParameters['Instance'].ToString().ToLower()})
                     }
                     if($PSBoundParameters.ContainsKey('IncludeEntraID') -and $PSBoundParameters['IncludeEntraID'].IsPresent){
-                        $mrules += @($MyRules).Where({$_.File.FullName -like "*EntraID*"})
+                        $mrules += @($MyRules).Where({$_.provider.ToLower() -eq "entraid"})
                     }
                     if($mrules.Count -gt 0){
                         $mrules = $mrules | Select-Object displayName,serviceType,level,IdSuffix
